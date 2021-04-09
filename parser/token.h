@@ -4,7 +4,7 @@
 #include <string>
 #include <sstream>
 
-enum tag {EOL=296, NUMBER, ID, FAULT};
+enum tag {EOL=1000, NUMBER, ID, FAULT};
 
 /*********** Token ***********/
 
@@ -28,7 +28,7 @@ const std::string Token::toString() const {
   std::stringstream aux;
   aux << "Basic token, symbol = ";
   switch (tag) {
-    case EOF  : aux << "EOF"; break;
+    case EOL  : aux << "EOL"; break;
     default   : aux << (char) this->tag; break;
   }
   return aux.str();

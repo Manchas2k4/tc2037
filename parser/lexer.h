@@ -66,7 +66,7 @@ Token* Lexer::nextToken() {
   }
 
   if (input.eof()) {
-    return new Token(EOF);
+    return new Token(EOL);
   }
 
   return new Token(current);
