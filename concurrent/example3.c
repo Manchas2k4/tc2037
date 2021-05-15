@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#define THREADS 5
+#define THREADS 4
 #define LIMIT   5
 
 void* task(void* param) {
