@@ -46,13 +46,13 @@ void* partial_sum(void* param) {
   Block *block;
   int i;
 
-  block = (Block *) param;
+  block = (Block*) param;
   acum = (double*) malloc(sizeof(double));
   (*acum) = 0;
   for (i = block->start; i < block->end; i++) {
     (*acum) += block->arr[i];
   }
-  return ( (void **) acum );
+  return ( (void**) acum );
 }
 
 /*************************************************************
@@ -94,8 +94,8 @@ int main(int argc, char* argv[]) {
     start_timer();
     result = 0;
     for (i = 0; i < THREADS; i++) {
-      pthread_create(&tids[i], NULL,
-        partial_sum, (void*) &blocks[i]);
+      pthread_create(&tids[i], NULL, partial_sum, 
+        (void*) &blocks[i]);
     }
     for (i = 0; i < THREADS; i++) {
   		pthread_join(tids[i], (void*) &acum);

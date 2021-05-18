@@ -19,6 +19,7 @@
 #include "utils.h"
 
 #define SIZE    1e8
+#define GRAIN   1e3
 #define THREADS 8
 
 void swap(int *a, int i, int j) {
@@ -75,20 +76,18 @@ void merge(int *A, int *B, int low, int mid, int high) {
  void split(int *A, int *B, int low, int high) {
    int  mid, size, i, j;
 
-   /*
    size = high - low + 1;
    if (size < GRAIN) {
      simpleSort(A, B, low, high, size);
      return;
    }
-   */
-   if (high - low == 0) return;
+   //if (high - low == 0) return;
 
    mid = low + ((high - low) / 2);
    split(A, B, low, mid);
    split(A, B, mid + 1, high);
    merge(A, B,low, mid, high);
-   copy_array(A,B, low, high);
+   copy_array(A, B, low, high);
  }
 
 
@@ -99,22 +98,6 @@ void* parrallel_sort(void* param) {
   split(block->A, block->B, block->low, block->high);
   return ( (void*) 0 );
 }
-
-void redux() {
-  int i, inc, gap;
-
-  inc = 2;
-  gap = 1;
-  while (inc <= THREADS) {
-    for (i = 0; i < THREADS; i += inc) {
-      printf("merge %i with %i\n", i, (i + gap));
-    }
-    inc *= 2;
-    gap *= 2;
-    printf("\n");
-  }
-}
-
 
 /*************************************************************
  * Main

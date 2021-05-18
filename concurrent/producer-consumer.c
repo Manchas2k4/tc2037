@@ -28,7 +28,7 @@ void add_buffer(int i) {
 int get_buffer(){
 	int v;
 	v = b[front];
-	front= (front + 1) % SIZE;
+	front = (front + 1) % SIZE;
 	size--;
 	return v ;
 }

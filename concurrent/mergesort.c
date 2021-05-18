@@ -71,14 +71,12 @@ void merge(int *A, int *B, int low, int mid, int high) {
 void split(int *A, int *B, int low, int high) {
   int  mid, size, i, j;
 
-  /*
   size = high - low + 1;
   if (size < GRAIN) {
     simpleSort(A, B, low, high, size);
     return;
   }
-  */
-  if (high - low == 0) return;
+  //if (high - low == 0) return;
 
   mid = low + ((high - low) / 2);
   split(A, B, low, mid);

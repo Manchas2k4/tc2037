@@ -18,7 +18,7 @@
 #include <pthread.h>
 #include "utils.h"
 
-#define SIZE    1e7
+#define SIZE    1e8
 #define GRAIN   1e3
 #define THREADS 8
 
@@ -147,8 +147,6 @@ int main(int argc, char* argv[]) {
   }
   display_array("after", aux);
   printf("time = %.4lf\n", (concur / N));
-
-  printf("speedup = %.6lf\n", (seq / concur));
 
   free(init.B); free(aux); free(a);
 }
