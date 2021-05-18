@@ -1,3 +1,15 @@
+/*************************************************************
+* File: example1.c
+* Author: Pedro Perez
+* Description: This file creates one single POSIX thread.
+*
+* To compile: gcc example1.c -pthread
+*
+* Copyright (c) 2021 by Tecnologico de Monterrey.
+* All Rights Reserved. May be reproduced for any non-commercial
+* purpose.
+*************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

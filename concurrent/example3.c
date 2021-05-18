@@ -1,3 +1,15 @@
+/*************************************************************
+* File: example3.c
+* Author: Pedro Perez
+* Description: This file creates 5 threads, sends a parameter
+*              to each of them.
+*
+* To compile: gcc example3.c -pthread
+*
+* Copyright (c) 2021 by Tecnologico de Monterrey.
+* All Rights Reserved. May be reproduced for any non-commercial
+* purpose.
+*************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

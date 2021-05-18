@@ -1,3 +1,17 @@
+/*************************************************************
+* File: example2.c
+* Author: Pedro Perez
+* Description: This file creates 5 threads and forces to the
+*              main thread to wait for all created threads
+*              (fork-join).
+*
+* To compile: gcc example2.c -pthread
+*
+* Copyright (c) 2021 by Tecnologico de Monterrey.
+* All Rights Reserved. May be reproduced for any non-commercial
+* purpose.
+*************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

@@ -1,9 +1,11 @@
 /*************************************************************
-* File: problem1.c
+* File: problem3.c
 * Author: Pedro Perez
-* Description: This file contains the code that adds all the
-*              elements of an integer array using pthreads.
-* To compile: gcc problem1.c -pthread
+* Description: This file contains the implementation of
+*              multiplication of a matrix by a vector using
+*              pthreads.
+*
+* To compile: gcc problem3.c -pthread
 *
 * Copyright (c) 2021 by Tecnologico de Monterrey.
 * All Rights Reserved. May be reproduced for any non-commercial
@@ -17,20 +19,23 @@
 #include <unistd.h>
 #include "utils.h"
 
-#define SIZE    1e9
+#define RENS 30000
+#define COLS 30000
 #define THREADS 8
 
 /*************************************************************
  * Sequential implementation
  *************************************************************/
-double sum(int *arr, int size) {
-  double acum = 0;
-  int i;
+void matrix_vector(int *m, int *b, int *c) {
+  int i, j, acum;
 
-  for (i = 0; i < size; i++) {
-    acum += arr[i];
+  for (i = 0; i < RENS; i++) {
+    acum = 0;
+    for (j = 0; j < COLS; j++) {
+      acum += (m[(i * COLS) + j] * b[i]);
+    }
+    c[i] = acum;
   }
-  return acum;
 }
 
 /*************************************************************
@@ -38,53 +43,65 @@ double sum(int *arr, int size) {
  *************************************************************/
  typedef struct {
    int start, end; // [start, end)
-   int *arr;
+   int *m, *b, *c;
  } Block;
 
-void* partial_sum(void* param) {
-  double *acum;
+void* partial_mult(void* param) {
   Block *block;
-  int i;
+  int acum, i, j;
 
   block = (Block *) param;
-  acum = (double*) malloc(sizeof(double));
-  (*acum) = 0;
   for (i = block->start; i < block->end; i++) {
-    (*acum) += block->arr[i];
+    acum = 0;
+    for (int j = 0; j < COLS; j++) {
+      acum += (block->m[(i * COLS) + j] * block->b[i]);
+    }
+    block->c[i] = acum;
   }
-  return ( (void **) acum );
+  return ( (void*) 0 );
 }
 
 /*************************************************************
  * Main
  *************************************************************/
 int main(int argc, char* argv[]) {
-  int *arr, block_size, i, j;
-  double result, seq, concur, *acum;
+  int block_size, i, j;
+  double result, seq, concur;
   Block blocks[THREADS];
   pthread_t tids[THREADS];
+  int *m, *b, *c;
 
-  arr = (int *) malloc(sizeof(int) * SIZE);
-  fill_array(arr, SIZE);
-  display_array("arr:", arr);
+  m = (int*) malloc(sizeof(int) * RENS* COLS);
+	b = (int*) malloc(sizeof(int) * RENS);
+	c = (int*) malloc(sizeof(int) * RENS);
+
+  for (i = 0; i < RENS; i++) {
+		for (j = 0; j < COLS; j++) {
+			m[(i * COLS) + j] = (j + 1);
+		}
+		b[i] = 1;
+	}
 
   printf("Running sequential code..\n");
   seq = 0;
   for (i = 0; i < N; i++) {
     start_timer();
-    result = sum(arr, SIZE);
+    matrix_vector(m, b, c);
     seq += stop_timer();
   }
-  printf("sum = %.0lf - time = %.4lf\n", result, (seq / N));
+  display_array("c", c);
+  printf("time = %.4lf\n", (seq / N));
 
-  block_size = SIZE / THREADS;
+  block_size = RENS / THREADS;
   for (i = 0; i < THREADS; i++) {
-    blocks[i].arr = arr;
+    blocks[i].m = m;
+    blocks[i].b = b;
+    blocks[i].c = c;
     blocks[i].start = i * block_size;
     if (i != (THREADS - 1)) {
       blocks[i].end = (i + 1) * block_size;
     } else {
-      blocks[i].end = SIZE;
+      blocks[i].end = RENS;
     }
   }
 
@@ -95,18 +112,17 @@ int main(int argc, char* argv[]) {
     result = 0;
     for (i = 0; i < THREADS; i++) {
       pthread_create(&tids[i], NULL,
-        partial_sum, (void*) &blocks[i]);
+        partial_mult, (void*) &blocks[i]);
     }
     for (i = 0; i < THREADS; i++) {
-  		pthread_join(tids[i], (void*) &acum);
-      result += (*acum);
-      free(acum);
+  		pthread_join(tids[i], NULL);
   	}
     concur += stop_timer();
   }
-  printf("sum = %.0lf - time = %.4lf\n", result, (concur / N));
+  display_array("c", c);
+  printf("time = %.4lf\n", (concur / N));
 
   printf("speedup = %.6lf\n", (seq / concur));
 
-  free(arr);
+  free(m); free(b); free(c);
 }

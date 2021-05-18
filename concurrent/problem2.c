@@ -1,9 +1,11 @@
 /*************************************************************
-* File: problem1.c
+* File: problem2.c
 * Author: Pedro Perez
-* Description: This file contains the code that adds all the
-*              elements of an integer array using pthreads.
-* To compile: gcc problem1.c -pthread
+* Description: This file contains the code to perform the
+*              numerical integration of a function within a
+*              defined interval using pthreads.
+*
+* To compile: gcc problem2.c -pthread
 *
 * Copyright (c) 2021 by Tecnologico de Monterrey.
 * All Rights Reserved. May be reproduced for any non-commercial
@@ -15,42 +17,48 @@
 #include <time.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <math.h>
 #include "utils.h"
 
-#define SIZE    1e9
+#define PI      3.14159265358979323846
+#define RECTS   1e8
 #define THREADS 8
 
 /*************************************************************
  * Sequential implementation
  *************************************************************/
-double sum(int *arr, int size) {
-  double acum = 0;
+double integration(double inf, double sup, double (*fn) (double)) {
+  double x, dx, acum;
   int i;
 
-  for (i = 0; i < size; i++) {
-    acum += arr[i];
+  x = inf;
+  dx = (sup - inf) / RECTS;
+  acum = 0;
+  for (i = 0; i < RECTS; i++) {
+    acum += fn(x + (i * dx));
   }
-  return acum;
+  acum = (acum * dx);
 }
 
 /*************************************************************
  * Concurrent implementation
  *************************************************************/
  typedef struct {
-   int start, end; // [start, end)
-   int *arr;
+   double start, end;
+   double x, dx;
+   double (*fn) (double);
  } Block;
 
-void* partial_sum(void* param) {
+void* partial_integration(void* param) {
   double *acum;
   Block *block;
   int i;
 
-  block = (Block *) param;
+  block = (Block*) param;
   acum = (double*) malloc(sizeof(double));
   (*acum) = 0;
   for (i = block->start; i < block->end; i++) {
-    (*acum) += block->arr[i];
+    (*acum) += block->fn(block->x + (i * block->dx));
   }
   return ( (void **) acum );
 }
@@ -59,32 +67,36 @@ void* partial_sum(void* param) {
  * Main
  *************************************************************/
 int main(int argc, char* argv[]) {
-  int *arr, block_size, i, j;
+  int i, j, block_size;
   double result, seq, concur, *acum;
   Block blocks[THREADS];
   pthread_t tids[THREADS];
+  double inf, sup, dx;
+  double (*fn) (double);
 
-  arr = (int *) malloc(sizeof(int) * SIZE);
-  fill_array(arr, SIZE);
-  display_array("arr:", arr);
+  inf = 0; sup = PI;
+  dx = (sup - inf) / RECTS;
+  fn = sin;
 
   printf("Running sequential code..\n");
   seq = 0;
   for (i = 0; i < N; i++) {
     start_timer();
-    result = sum(arr, SIZE);
+    result = integration(inf, sup, fn);
     seq += stop_timer();
   }
   printf("sum = %.0lf - time = %.4lf\n", result, (seq / N));
 
-  block_size = SIZE / THREADS;
+  block_size = RECTS / THREADS;
   for (i = 0; i < THREADS; i++) {
-    blocks[i].arr = arr;
+    blocks[i].x = inf;
+    blocks[i].dx = dx;
+    blocks[i].fn = fn;
     blocks[i].start = i * block_size;
     if (i != (THREADS - 1)) {
       blocks[i].end = (i + 1) * block_size;
     } else {
-      blocks[i].end = SIZE;
+      blocks[i].end = RECTS;
     }
   }
 
@@ -95,7 +107,7 @@ int main(int argc, char* argv[]) {
     result = 0;
     for (i = 0; i < THREADS; i++) {
       pthread_create(&tids[i], NULL,
-        partial_sum, (void*) &blocks[i]);
+        partial_integration, (void*) &blocks[i]);
     }
     for (i = 0; i < THREADS; i++) {
   		pthread_join(tids[i], (void*) &acum);
@@ -107,6 +119,4 @@ int main(int argc, char* argv[]) {
   printf("sum = %.0lf - time = %.4lf\n", result, (concur / N));
 
   printf("speedup = %.6lf\n", (seq / concur));
-
-  free(arr);
 }
