@@ -1,12 +1,11 @@
 /**
-* To compile: gcc pthrads1.c -lpthread
+* To compile: gcc producer-consumer.c -pthread
 **/
 
-#include <sys/time.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/time.h>
 #include <pthread.h>
-#include <errno.h>
 
 #define SIZE 		10
 #define MAXNUM 	10000
