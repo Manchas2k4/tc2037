@@ -19,11 +19,11 @@ typedef struct {
 } Philosopher;
 
 int sticks[PHILOSOPHERS];
-pthread_cond_t cond[PHILOSOPHERS];
 Philosopher* philosophers[PHILOSOPHERS];
 pthread_t tids[PHILOSOPHERS];
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond[PHILOSOPHERS];
 
 int left_stick(int id) {
   return id;
@@ -81,8 +81,8 @@ void take_chopsticks(Philosopher *philosopher) {
 void eat(Philosopher *philosopher) {
 	sleep(EATING_TIME);
 	philosopher->waiting_times = 0;
-	printf("P: %d eating for %d seconds.\n",
-    philosopher->id + 1, EATING_TIME);
+
+
 }
 
 void leave_chopsticks(Philosopher *philosopher) {
