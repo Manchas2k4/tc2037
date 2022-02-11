@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
     start_timer();
     result = 0;
     for (i = 0; i < THREADS; i++) {
-      pthread_create(&tids[i], NULL, partial_sum, 
+      pthread_create(&tids[i], NULL, partial_sum,
         (void*) &blocks[i]);
     }
     for (i = 0; i < THREADS; i++) {
