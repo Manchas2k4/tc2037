@@ -1,5 +1,5 @@
 ![Tec de Monterrey](images/logotecmty.png)
-# tc3027 - Implementation of Computational Methods
+# TC3027 - Implementation of Computational Methods
 
 This intermediate computer technologies course focuses on competency development in the area of computer science. The main topics studied in this educational unit are: programming paradigms and automata theory. Prior knowledge is required of discrete mathematics and algorithm and data structure analysis, design and programming using a high-level language.
 
