@@ -6,7 +6,7 @@ This intermediate computer technologies course focuses on competency development
 
 Learning outcome: Students design and implement programs that resolve diverse computer problems optimally through the application of the concepts of automata theory and using different programming paradigms.
 
-## Course objective
+## Course objectives
 Upon completion of this educational unit, students will be able to:
 - Implement computer algorithms to solve problems.
 - Optimize computer algorithms applied in the development of solutions.
