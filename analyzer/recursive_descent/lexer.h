@@ -44,6 +44,19 @@ Token* Lexer::nextToken() {
     }
   } while (!input.eof());
 
+  if (current == '/') {
+    input.get(current);
+    if (current == '/') {
+      do {
+        input.get(current);
+      } while (current != '\n');
+      input.get(current); input.get(current);
+    } else {
+      input.putback(current);
+      return new Token('/');
+    }
+  }
+
   if (isdigit(current)) {
     int value = 0;
     do {

@@ -1,15 +1,17 @@
-/*************************************************************
-* File: item.h
-* Author: Pedro Perez
-* Description: This file contains the implementation of the
-*							 functions used to take the time and perform the
-*							 speed up calculation; as well as functions for
-* 						 initializing integer arrays.
-*
-* Copyright (c) 2021 by Tecnologico de Monterrey.
-* All Rights Reserved. May be reproduced for any non-commercial
-* purpose.
-*************************************************************/
+// =================================================================
+//
+// File: utils.h
+// Author: Pedro Perez
+// Description: This file contains the implementation of the
+//				functions used to take the time and perform the
+//				speed up calculation; as well as functions for
+//				initializing integer arrays.
+//
+// Copyright (c) 2020 by Tecnologico de Monterrey.
+// All Rights Reserved. May be reproduced for any non-commercial
+// purpose.
+//
+// =================================================================
 
 #ifndef UTILS_H
 #define UTILS_H
@@ -65,7 +67,7 @@ void fill_array(int *array, int size) {
 	}
 }
 
-void display_array(char *text, int *array) {
+void display_array(const char *text, int *array) {
 	int i;
 
 	printf("%s = [%4i", text, array[0]);

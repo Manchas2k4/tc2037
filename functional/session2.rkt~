@@ -1,9 +1,6 @@
-;; The first three lines of this file were inserted by DrRacket. They record metadata
-;; about the language level of this file in a form that our tools can easily process.
-#reader(lib "htdp-advanced-reader.ss" "lang")((modname session2) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f () #f)))
 ;; Sesión 2
 
-;;#lang racket
+#lang racket
 
 ;; fact-head: number -> number
 (define fact-head
@@ -86,8 +83,7 @@
   (lambda (start end)
     (cond
       [(> start end) '()]
-      [else (cons start (list-of-numbers-head (+ start 1)
-                                              end))])))
+      [else (cons start (list-of-numbers-head (+ start 1) end))])))
 ;; example: (list-of-numbers-head 1 5) => '(1 2 3 4 5)
 
 ;; list-of-numbers-tail: number number list-of-number -> list-of-number
@@ -95,8 +91,7 @@
   (lambda (start end acc)
     (cond
       [(> start end) acc]
-      [else (list-of-numbers-tail start (- end 1)
-                                  (cons end acc))])))
+      [else (list-of-numbers-tail start (- end 1) (cons end acc))])))
 ;; example: (list-of-numbers-tail 1 5 '()) => '(1 2 3 4 5)
 
 ;; push-back: atom list -> list
@@ -151,9 +146,8 @@
   (lambda (list threshold)
     (cond
       [(null? list) '()]
-      [(< (car list) threshold) (cons
-                                 (car list)
-                                 (small-items (cdr list) threshold))]
+      [(< (car list) threshold) (cons (car list)
+                                      (small-items (cdr list) threshold))]
       [else (small-items (cdr list) threshold)])))
 ;; example: (small-items '(71 73 26 82) 50) = '(26)
 
@@ -163,19 +157,18 @@
     (cond
       [(null? list) '()]
       [(> (car list) threshold) (cons (car list)
-                                      (large-items
-                                       (cdr list) threshold))]
+                                      (large-items (cdr list) threshold))]
       [else (large-items (cdr list) threshold)])))
 ;; example: (large-items '(71 73 26 82) 50) = '(71 73 82)
 
 ;; quicksort: list-of-numbers -> list-of-numbers
-(define quicksort2
+(define quicksort
   (lambda (list)
     (cond
       [(null? list) '()]
-      [else (append (quicksort2 (small-items list (car list)))
+      [else (append (quicksort (small-items list (car list)))
                     (cons (car list) '())
-                    (quicksort2 (large-items list (car list))))])))
+                    (quicksort (large-items list (car list))))])))
 ;; example: (quicksort '(71 73 26 82)) => '(26 71 73 82)
 
 (define greater
@@ -212,7 +205,7 @@
   (lambda (list)
     (cond
       [(null? list) '()]
-      [else (append (quick2 (redux (lambda (x) (< x (car list))) list))
+      [else (append (quick2 (redux (lambda (x) (> x (car list))) list))
                     (cons (car list) '())
-                    (quick2 (redux (lambda (x) (> x (car list))) list)))])))
+                    (quick2 (redux (lambda (x) (< x (car list))) list)))])))
                           

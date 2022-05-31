@@ -14,8 +14,10 @@ private:
     void E();
     void T();
     void F();
+    void H();
     void EPrime();
     void TPrime();
+    void FPrime();
 
 public:
   ~Parser();
@@ -55,6 +57,11 @@ void Parser::T() {
 }
 
 void Parser::F() {
+  H();
+  FPrime();
+}
+
+void Parser::H() {
   if (token->getTag() == NUMBER) {
     check(NUMBER);
   } else if (token->getTag() == ID) {
@@ -91,6 +98,16 @@ void Parser::TPrime() {
     check((int) '/');
     F();
     TPrime();
+  } else {
+    // do nothing
+  }
+}
+
+void Parser::FPrime() {
+  if (token->getTag() == ((int) '^')) {
+    check((int) '^');
+    H();
+    FPrime();
   } else {
     // do nothing
   }

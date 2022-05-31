@@ -34,8 +34,3 @@
 
 (define max-profit
   (max-aux 5.00 0))
-
-
-
-
-
