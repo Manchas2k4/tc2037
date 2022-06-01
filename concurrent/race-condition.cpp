@@ -1,36 +1,79 @@
+// =================================================================
+//
+// File: race-condition.cpp
+// Author: Pedro Perez
+// Description: This file implements a race condition problem.
+//              To compile: g++ race-condition.cpp -lpthread
+//
+// Copyright (c) 2020 by Tecnologico de Monterrey.
+// All Rights Reserved. May be reproduced for any non-commercial
+// purpose.
+//
+// =================================================================
+
 #include <iostream>
+#include <iomanip>
 #include <unistd.h>
 #include <pthread.h>
+#include <cstdlib>
+#include <ctime>
+#include <sys/time.h>
 
 using namespace std;
 
-const int MAX = 10;
-int acum = 0;
+int counter = 0;
 
-void* add(void *param) {
-  for (int i = 0; i < MAX; i++) {
-    acum = acum + 1;
-    cout << "add acum = " << acum << "\n";
-  }
-  pthread_exit(0);
+const int MAX_SLEEP_TIME = 3;
+const int MAX_THREADS = 4;
+const int MAX_ITERATIONS = 5;
+
+void* increment(void *param) {
+    int id, sleepTime;
+
+    id = *((int*) param);
+    for (int i = 0; i < MAX_ITERATIONS; i++) {
+        //cout << "id = " << id << " counter initial value = " << counter << "\n";
+        counter++;
+        sleepTime = (rand() % MAX_SLEEP_TIME) + 1;
+        sleep(sleepTime);
+        cout << "id = " << id << " incrementing, counter = " << counter << "\n";
+    }
+    pthread_exit(NULL);
 }
 
-void* sub(void *param) {
-  for (int i = 0; i < MAX; i++) {
-    acum = acum - 1;
-    cout << "sub acum = " << acum << "\n";
-  }
-  pthread_exit(0);
+void* decrement(void *param) {
+    int id, sleepTime;
+
+    id = *((int*) param);
+    for (int i = 0; i < MAX_ITERATIONS; i++) {
+        counter--;
+        sleepTime = (rand() % MAX_SLEEP_TIME) + 1;
+        sleep(sleepTime);
+        cout << "id = " << id << " decrementing, counter = " << counter << "\n";
+
+    }
+    pthread_exit(NULL);
 }
 
 int main(int argc, char* argv[]) {
-  pthread_t t1, t2;
+    pthread_t tids[MAX_THREADS];
+    int id[MAX_THREADS];
 
-  pthread_create(&t1, NULL, add, NULL);
-  pthread_create(&t2, NULL, sub, NULL);
+    for (int i = 0; i < MAX_THREADS; i++) {
+        id[i] = i;
+    }
 
-  pthread_join(t1, NULL);
-  pthread_join(t2, NULL);
+    for (int i = 0; i < MAX_THREADS; i++) {
+        if (i % 2 == 0) {
+            pthread_create(&tids[i], NULL, increment, (void*) &id[i]);
+        } else {
+            pthread_create(&tids[i], NULL, decrement, (void*) &id[i]);
+        }
+    }
 
-  return 0;
+    for (int i = 0; i < MAX_THREADS; i++) {
+        pthread_join(tids[i], NULL);
+    }
+
+    return 0;
 }

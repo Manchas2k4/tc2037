@@ -1,93 +1,88 @@
+// =================================================================
+//
+// File: example1.cpp
+// Author: Pedro Perez
+// Description: This file contains the code that adds all the
+//				elements of an integer array using pthreads.
+//              To compile: g++ example1.cpp -lpthread
+//
+// Copyright (c) 2020 by Tecnologico de Monterrey.
+// All Rights Reserved. May be reproduced for any non-commercial
+// purpose.
+//
+// =================================================================
+
 #include <iostream>
-#include <cstdlib>
+#include <iomanip>
 #include <unistd.h>
 #include <pthread.h>
 #include "utils.h"
 
-const int SIZE = 1000000000; //1e9
-const int THREADS = 8;
-
 using namespace std;
 
-/*--------------------- MONO HILO ---------------------*/
-double sum(int *arr, int size) {
-  double acum = 0;
-  for (int i = 0; i < size; i++) {
-    acum += arr[i];
-  }
-  return acum;
-}
+const int SIZE = 1000000000; //1e9
+const int THREADS = 4;
 
-/*--------------------- MULTI HILO ---------------------*/
 typedef struct {
   int start, end; // [start, end)
   int *arr;
-  double acum;
 } Block;
 
-void* partialSum(void* param) {
+void* sumArray(void* param) {
+  double *acum;
   Block *block;
-  double acum;
+  int i;
 
-  block = (Block*) param;
-  acum = 0;
-  for (int i = block->start; i < block->end; i++) {
-    acum += block->arr[i];
+  block = (Block *) param;
+  acum =  new double;
+  (*acum) = 0;
+  for (i = block->start; i < block->end; i++) {
+    (*acum) += block->arr[i];
   }
-  block->acum = acum;
-  pthread_exit(0);
+  return ( (void**) acum );
 }
 
-int main(int argc, char* argv[] ) {
-  int *data, blockSize;
-  double ms, result;
-  pthread_t tids[THREADS];
-  Block blocks[THREADS];
+int main(int argc, char* argv[]) {
+	int *a, block_size, i, j;
+	double ms, result, *acum;
+    Block blocks[THREADS];
+    pthread_t tids[THREADS];
 
-  data = new int[SIZE];
-  fill_array(data, SIZE);
-  display_array("data = ", data);
+	a = new int[SIZE];
+	fill_array(a, SIZE);
+	display_array("a", a);
 
-  /*--------------------- MONO HILO ---------------------*/
-  ms = 0;
-  for (int i = 0; i < N; i++) {
-    start_timer();
-    result = sum(data, SIZE);
-    ms += stop_timer();
-  }
-  cout << "---- Serial ----\n";
-  cout << "Result = " << result << "\n";
-  cout << "Time = " << (ms / N) << "ms\n";
-
-  /*--------------------- MULTI HILO ---------------------*/
-  blockSize = SIZE / THREADS;
-  for (int i = 0; i < THREADS; i++) {
-    blocks[i].start = i * blockSize;
-    blocks[i].end = (i != (THREADS - 1))? ((i + 1) * blockSize) : SIZE;
-    blocks[i].arr = data;
-    blocks[i].acum = 0;
-  }
-
-  ms = 0;
-  for (int i = 0; i < N; i++) {
-    start_timer();
-
-    for (int j = 0; j < THREADS; j++) {
-      pthread_create(&tids[j], NULL, partialSum, (void*) &blocks[j]);
+    block_size = SIZE / THREADS;
+    for (i = 0; i < THREADS; i++) {
+        blocks[i].arr = a;
+        blocks[i].start = i * block_size;
+        if (i != (THREADS - 1)) {
+            blocks[i].end = (i + 1) * block_size;
+        } else {
+            blocks[i].end = SIZE;
+        }
     }
 
-    result = 0;
-    for (int j = 0; j < THREADS; j++) {
-      pthread_join(tids[j], NULL);
-      result += blocks[j].acum;
+	std::cout << "Starting...\n";
+	ms = 0;
+    for (j = 0; j < N; j++) {
+        start_timer();
+
+        result = 0;
+        for (i = 0; i < THREADS; i++) {
+            pthread_create(&tids[i], NULL, sumArray, (void*) &blocks[i]);
+        }
+        for (i = 0; i < THREADS; i++) {
+            pthread_join(tids[i], (void**) &acum);
+            result += (*acum);
+            delete acum;
+        }
+
+        ms += stop_timer();
     }
+	std::cout << "sum = " << setprecision(5) << result << "\n";
+	std::cout << "avg time =  " << setprecision(5) << (ms / N) << "\n";
 
-    ms += stop_timer();
-  }
-  cout << "---- Multithread ----\n";
-  cout << "Result = " << result << "\n";
-  cout << "Time = " << (ms / N) << "ms\n";
-
-  delete [] data;
-  return 0;
+	delete [] a;
+	return 0;
 }

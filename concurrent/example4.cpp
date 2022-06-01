@@ -1,106 +1,94 @@
+// =================================================================
+//
+// File: example4.cpp
+// Author: Pedro Perez
+// Description: This file contains the code that searches for the
+// 				smallest value stored in an array using pthreads.
+//              To compile: g++ example4.cpp -lpthread
+//
+// Copyright (c) 2020 by Tecnologico de Monterrey.
+// All Rights Reserved. May be reproduced for any non-commercial
+// purpose.
+//
+// =================================================================
+
 #include <iostream>
+#include <iomanip>
+#include <climits>
 #include <unistd.h>
 #include <pthread.h>
 #include "utils.h"
 
 using namespace std;
 
-const int RENS = 30000;
-const int COLS = 30000;
-const int THREADS = 8;
+const int SIZE = 1000000000; //1e9
+const int THREADS = 4;
 
-/*--------------------- MONO THREAD ---------------------*/
-// C = M x V
-void matrixXVector(int *C, const int *M, const int *V) {
-  double acum;
-
-  for (int i = 0; i < RENS; i++) {
-    acum = 0;
-    for (int j = 0; j < COLS; j++) {
-      acum += M[(i * COLS) + j] * V[i];
-    }
-    C[i] = acum;
-  }
-}
-/*--------------------- MULTI THREAD ---------------------*/
 typedef struct {
-  int start, end; //RENS
-  int *C, *M, *V;
+  int start, end; // [start, end)
+  int *arr;
 } Block;
 
-void* partialMult(void *param) {
+void* minValue(void* param) {
+  int *acum;
   Block *block;
-  double acum;
+  int i;
 
-  block = (Block*) param;
-  for (int i = block->start; i < block->end; i++) {
-    acum = 0;
-    for (int j = 0; j < COLS; j++) {
-      acum += block->M[(i * COLS) + j] * block->V[i];
-    }
-    block->C[i] = acum;
+  block = (Block *) param;
+  acum = new int;
+  (*acum) = INT_MAX;
+  for (i = block->start; i < block->end; i++) {
+    (*acum) = min((*acum), block->arr[i]);
   }
-  pthread_exit(0);
+  return ( (void**) acum );
 }
 
 int main(int argc, char* argv[]) {
-  int *C, *M, *V, blockSize;
-  double ms, acum;
-  pthread_t tids[THREADS];
-  Block blocks[THREADS];
+	int *a, block_size, i, j, pos;
+	double ms, result, *acum;
+    Block blocks[THREADS];
+    pthread_t tids[THREADS];
 
-  M = new int[RENS * COLS];
-  V = new int[RENS];
-  C = new int[RENS];
+	a = new int[SIZE];
+	fill_array(a, SIZE);
+	display_array("a", a);
 
-  for (int i = 0; i < RENS; i++) {
-    for (int j = 0; j < COLS; j++) {
-      M[(i * COLS) + j] = (j + 1);
-    }
-    V[i] = 1;
-  }
+    srand(time(0));
+	pos = rand() % SIZE;
+	printf("Setting value 0 at %i\n", pos);
+	a[pos] = 0;
 
-  /*--------------------- MONO THREAD ---------------------*/
-  acum = 0;
-  for (int j = 0; j < N; j++) {
-    start_timer();
-    matrixXVector(C, M, V);
-    ms += stop_timer();
-  }
-  cout << "Monothread\n";
-  display_array("C = ", C);
-  cout << "Time = " << (ms / N) << " ms\n";
-
-  /*--------------------- MULTI THREAD ---------------------*/
-  blockSize = RENS / THREADS;
-  for (int i = 0; i < THREADS; i++) {
-    blocks[i].start = i * blockSize;
-    blocks[i].end = (i != (THREADS - 1))? (i + 1) * blockSize : RENS;
-    blocks[i].C = C;
-    blocks[i].M = M;
-    blocks[i].V = V;
-  }
-
-  ms = 0;
-  for (int j = 0; j < N; j++) {
-    start_timer();
-
-    for (int i = 0; i < THREADS; i++) {
-      pthread_create(&tids[i], NULL, partialMult, (void*) &blocks[i]);
+    block_size = SIZE / THREADS;
+    for (i = 0; i < THREADS; i++) {
+        blocks[i].arr = a;
+        blocks[i].start = i * block_size;
+        if (i != (THREADS - 1)) {
+            blocks[i].end = (i + 1) * block_size;
+        } else {
+            blocks[i].end = SIZE;
+        }
     }
 
-    for (int i = 0; i < THREADS; i++) {
-      pthread_join(tids[i], NULL);
+	std::cout << "Starting...\n";
+	ms = 0;
+    for (j = 0; j < N; j++) {
+        start_timer();
+
+        result = 0;
+        for (i = 0; i < THREADS; i++) {
+            pthread_create(&tids[i], NULL, minValue, (void*) &blocks[i]);
+        }
+        for (i = 0; i < THREADS; i++) {
+            pthread_join(tids[i], (void**) &acum);
+            result = (*acum);
+            free(acum);
+        }
+
+        ms += stop_timer();
     }
+	std::cout << "min = " << setprecision(5) << result << "\n";
+	std::cout << "avg time =  " << setprecision(5) << (ms / N) << "\n";
 
-    ms += stop_timer();
-  }
-  cout << "Multithread\n";
-  display_array("C = ", C);
-  cout << "Time = " << (ms / N) << " ms\n";
-
-  delete [] M;
-  delete [] V;
-  delete [] C;
-  return 0;
+	delete [] a;
+	return 0;
 }

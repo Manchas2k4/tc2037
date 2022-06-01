@@ -1,96 +1,99 @@
+// =================================================================
+//
+// File: example2.cpp
+// Author: Pedro Perez
+// Description: This file implements the multiplication of a matrix
+//				by a vector using pthreads.
+//              To compile: g++ example2.cpp -lpthread
+//
+// Copyright (c) 2020 by Tecnologico de Monterrey.
+// All Rights Reserved. May be reproduced for any non-commercial
+// purpose.
+//
+// =================================================================
+
 #include <iostream>
-#include <cstdlib>
+#include <iomanip>
+#include <climits>
 #include <unistd.h>
 #include <pthread.h>
-#include <algorithm>
 #include "utils.h"
-
-const int SIZE = 1000000000; //1e9
-const int THREADS = 8;
 
 using namespace std;
 
-/*--------------------- MONO THREAD ---------------------*/
-int minimum(int *arr, int size) {
-  int result = arr[0];
-  for (int i = 1; i < size; i++) {
-    result = min(result, arr[i]);
-  }
-  return result;
-}
+const int RENS = 30000; //1e5
+const int COLS = 30000;
+const int THREADS = 4;
 
-/*--------------------- MULTI THREAD ---------------------*/
 typedef struct {
   int start, end; // [start, end)
-  int *arr;
-  int result;
+  int *m, *b, *c;
 } Block;
 
-void* partialMinimum(void* param) {
+void* matrixXVector(void* param) {
   Block *block;
-  int result;
+  int i, j, acum;
 
-  block = (Block*) param;
-  result = block->arr[block->start];
-  for (int i = block->start + 1; i < block->end; i++) {
-    result = min(result, block->arr[i]);
+  block = (Block *) param;
+  for (i = block->start; i < block->end; i++) {
+      acum = 0;
+      for (j = 0; j < COLS; j++) {
+          acum += (block->m[(i * COLS) + j] * block->b[i]);
+      }
+      block->c[i] = acum;
   }
-  block->result = result;
-  pthread_exit(0);
+  pthread_exit(NULL);
 }
 
-int main(int argc, char* argv[] ) {
-  int *data, blockSize, result;
-  double ms;
-  pthread_t tids[THREADS];
-  Block blocks[THREADS];
+int main(int argc, char* argv[]) {
+	int i, j, *m, *b, *c, block_size;
+	double ms;
+    Block blocks[THREADS];
+    pthread_t tids[THREADS];
 
-  data = new int[SIZE];
-  fill_array(data, SIZE);
-  display_array("data = ", data);
+	m = new int[RENS* COLS];
+	b = new int[RENS];
+	c = new int[RENS];
 
-  data[999999] = 0;
+	for (i = 0; i < RENS; i++) {
+		for (j = 0; j < COLS; j++) {
+			m[(i * COLS) + j] = (j + 1);
+		}
+		b[i] = 1;
+	}
 
-  /*--------------------- MONO THREAD ---------------------*/
-  ms = 0;
-  for (int i = 0; i < N; i++) {
-    start_timer();
-    result = minimum(data, SIZE);
-    ms += stop_timer();
-  }
-  cout << "---- Serial ----\n";
-  cout << "Result = " << result << "\n";
-  cout << "Time = " << (ms / N) << "ms\n";
-
-  /*--------------------- MULTI THREAD ---------------------*/
-  blockSize = SIZE / THREADS;
-  for (int i = 0; i < THREADS; i++) {
-    blocks[i].start = i * blockSize;
-    blocks[i].end = (i != (THREADS - 1))? ((i + 1) * blockSize) : SIZE;
-    blocks[i].arr = data;
-    blocks[i].result = -1;
-  }
-
-  ms = 0;
-  for (int i = 0; i < N; i++) {
-    start_timer();
-
-    for (int j = 0; j < THREADS; j++) {
-      pthread_create(&tids[j], NULL, partialMinimum, (void*) &blocks[j]);
+    block_size = RENS / THREADS;
+    for (i = 0; i < THREADS; i++) {
+        blocks[i].start = i * block_size;
+        if (i != (THREADS - 1)) {
+            blocks[i].end = (i + 1) * block_size;
+        } else {
+            blocks[i].end = RENS;
+        }
+        blocks[i].m = m;
+        blocks[i].b = b;
+        blocks[i].c = c;
     }
 
-    result = 0;
-    for (int j = 0; j < THREADS; j++) {
-      pthread_join(tids[j], NULL);
-      result = min(result, blocks[j].result);
-    }
+	std::cout << "Starting...\n";
+	ms = 0;
+	for (j = 0; j < N; j++) {
+        start_timer();
 
-    ms += stop_timer();
-  }
-  cout << "---- Multithread ----\n";
-  cout << "Result = " << result << "\n";
-  cout << "Time = " << (ms / N) << "ms\n";
+        for (i = 0; i < THREADS; i++) {
+            pthread_create(&tids[i], NULL, matrixXVector, (void*) &blocks[i]);
+        }
+        for (i = 0; i < THREADS; i++) {
+            pthread_join(tids[i], NULL);
+        }
 
-  delete [] data;
-  return 0;
+        ms += stop_timer();
+	}
+	display_array("c:", c);
+	std::cout << "avg time =  " << setprecision(5) << (ms / N) << "\n";
+
+	delete [] m;
+	delete [] b;
+	delete [] c;
+	return 0;
 }

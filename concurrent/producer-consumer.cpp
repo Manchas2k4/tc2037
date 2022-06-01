@@ -1,73 +1,100 @@
+// =================================================================
+//
+// File: producer-consumer.cpp
+// Author: Pedro Perez
+// Description: This file implements the producer-consumer
+//              synchronization problem using pthreads.
+//              To compile: g++ producer-consumer.cpp -lpthread
+//
+// Copyright (c) 2020 by Tecnologico de Monterrey.
+// All Rights Reserved. May be reproduced for any non-commercial
+// purpose.
+//
+// =================================================================
+
 #include <iostream>
+#include <iomanip>
 #include <unistd.h>
 #include <pthread.h>
-
-#define MIN(a,b) (((a)<(b))?(a):(b))
-#define MAX(a,b) (((a)>(b))?(a):(b))
-
-using namespace std;
+#include <sys/time.h>
 
 const int SIZE = 10;
-
-int buffer[SIZE];
-int front = 0, rear = 0, count = 0;
+const int MAXNUM = 10000;
+const int MAXPROD = 5;
+const int MAXCON = 5;
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t space_available = PTHREAD_COND_INITIALIZER;
+pthread_cond_t data_available = PTHREAD_COND_INITIALIZER;
 
-void enqueue(int element) {
-  buffer[rear] = element;
-  rear = (rear + 1) % SIZE;
-  count++;
+int b[SIZE];
+int size = 0;
+int front = 0, rear = 0;
+
+void add_buffer(int i) {
+	b[rear] = i;
+	rear = (rear + 1) % SIZE;
+	size++;
 }
 
-int dequeue() {
-  int result = buffer[front];
-  front = (front + 1) % SIZE;
-  count--;
-  return result;
+int get_buffer(){
+	int v;
+	v = b[front];
+	front= (front + 1) % SIZE;
+	size--;
+	return v ;
 }
 
-void printQueue() {
-  for (int i = 0; i < SIZE; i++) {
-    if (i >= MIN(front, rear) && i <= MAX(front, rear)) {
-      cout << buffer[i] << " ";
-    } else {
-      cout << "X ";
-    }
-  }
-  cout << "\n";
+void* producer(void *arg) {
+	int i;
+
+	printf("producter starting...\n");
+	i = 0;
+	while (1) {
+		pthread_mutex_lock(&mutex);
+		if (size == SIZE) {
+			pthread_cond_wait(&space_available, &mutex);
+		}
+		printf("producer adding %i...\n", i);
+		add_buffer(i);
+		pthread_cond_signal(&data_available);
+		pthread_mutex_unlock(&mutex);
+		i = (i + 1) % MAXNUM;
+		sleep(1);
+	}
+	pthread_exit(NULL);
 }
 
-void* add(void *param) {
-  for (int i = 0; i < MAX; i++) {
-    pthread_mutex_lock(&mutex);
-    acum = acum + 1;
-    cout << "add acum = " << acum << "\n";
-    pthread_mutex_unlock(&mutex);
-    sleep((rand() % 3) + 1);
-  }
-  pthread_exit(0);
+void* consumer(void *arg) {
+	int v;
+	printf("consumer starting...\n");
+	for (int i = 0; i < 10; i++) {
+		pthread_mutex_lock(&mutex);
+		if (size == 0) {
+			pthread_cond_wait(&data_available, &mutex);
+		}
+		v = get_buffer();
+		printf("consumer getting %i...\n", v);
+		pthread_cond_signal(&space_available);
+		pthread_mutex_unlock(&mutex);
+	}
+	printf("consuming finishing...\n");
+	pthread_exit(NULL);
 }
 
-void* sub(void *param) {
-  for (int i = 0; i < MAX; i++) {
-    pthread_mutex_lock(&mutex);
-    acum = acum - 1;
-    cout << "sub acum = " << acum << "\n";
-    pthread_mutex_unlock(&mutex);
-    sleep((rand() % 3) + 1);
-  }
-  pthread_exit(0);
-}
+int main(int argc, char* argv[])   {
+	pthread_t producer_thread[MAXPROD];
+	pthread_t consumer_thread[MAXCON];
 
-int main(int argc, char* argv[]) {
-  pthread_t t1, t2;
-
-  pthread_create(&t1, NULL, add, NULL);
-  pthread_create(&t2, NULL, sub, NULL);
-
-  pthread_join(t1, NULL);
-  pthread_join(t2, NULL);
-
-  return 0;
+	for (int i = 0; i < MAXPROD; i++) {
+		pthread_create(&producer_thread[i], NULL, producer, NULL);
+	}
+	sleep(10);
+	for (int i = 0; i < MAXCON; i++) {
+		pthread_create(&consumer_thread[i], NULL, consumer, NULL);
+	}
+	for (int i = 0; i < MAXCON; i++) {
+		pthread_join(consumer_thread[i], NULL);
+	}
+	return 0;
 }

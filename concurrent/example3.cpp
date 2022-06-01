@@ -1,96 +1,91 @@
+// =================================================================
+//
+// File: example3.cpp
+// Author: Pedro Perez
+// Description: This file contains the code to perform the numerical
+//				integration of a function within a defined interval
+//				using pthreads.
+//              To compile: g++ example3.cpp -lpthread
+//
+// Copyright (c) 2020 by Tecnologico de Monterrey.
+// All Rights Reserved. May be reproduced for any non-commercial
+// purpose.
+//
+// =================================================================
+
 #include <iostream>
-#include <cstdlib>
-#include <unistd.h>
-#include <pthread.h>
+#include <iomanip>
 #include <algorithm>
 #include <cmath>
+#include <unistd.h>
+#include <pthread.h>
 #include "utils.h"
-
-const int RECTS = 100000000; //1e9
-const double PI = 3.141592653589793238;
-const int THREADS = 8;
 
 using namespace std;
 
-/*--------------------- MONO THREAD ---------------------*/
-double integration(double inf, double sup, double (*fn) (double)) {
-  double acum, dx;
+const double PI = 3.14159265;
+const int RECTS = 1000000000; //1e9
+const int THREADS = 4;
 
-  acum = 0;
-  dx = (sup - inf) / RECTS;
-  for (int i = 0; i < RECTS; i++) {
-    acum += fn(inf + (i * dx));
-  }
-  return (acum * dx);
-}
-
-/*--------------------- MULTI THREAD ---------------------*/
 typedef struct {
   int start, end; // [start, end)
+  double x, dx;
   double (*fn) (double);
-  double dx;
-  double acum;
 } Block;
 
-void* partialIntegration(void* param) {
-  Block *block;
-  double acum;
+void* integration(void* param) {
+	int i;
+    double *acum;
+    Block *block;
 
-  block = (Block*) param;
-  acum = 0;
-  for (int i = block->start; i < block->end; i++) {
-    acum += block->fn(block->start + (i * block->dx));
-  }
-  block->acum = acum;
-  pthread_exit(0);
+    block = (Block *) param;
+    acum = new double;
+	(*acum) = 0;
+	for (i = block->start; i < block->end; i++) {
+		(*acum) += block->fn(block->x + (i * block->dx));
+	}
+	(*acum) = (*acum) * block->dx;
+    return ( (void**) acum );
 }
 
-int main(int argc, char* argv[] ) {
-  double ms, result;
-  int blockSize;
-  pthread_t tids[THREADS];
-  Block blocks[THREADS];
+int main(int argc, char* argv[]) {
+	int i, j, block_size;
+	double ms, result, *acum;
+    Block blocks[THREADS];
+    pthread_t tids[THREADS];
 
-  /*--------------------- MONO THREAD ---------------------*/
-  ms = 0;
-  for (int i = 0; i < N; i++) {
-    start_timer();
-    result = integration(0, PI, sin);
-    ms += stop_timer();
-  }
-  cout << "---- Serial ----\n";
-  cout << "Result = " << result << "\n";
-  cout << "Time = " << (ms / N) << "ms\n";
-
-  /*--------------------- MULTI THREAD ---------------------*/
-  blockSize = RECTS / THREADS;
-  for (int i = 0; i < THREADS; i++) {
-    blocks[i].start = i * blockSize;
-    blocks[i].end = (i != (THREADS - 1))? ((i + 1) * blockSize) : RECTS;
-    blocks[i].fn = sin;
-    blocks[i].dx = PI / RECTS;
-    blocks[i].acum = 0;
-  }
-
-  ms = 0;
-  for (int i = 0; i < N; i++) {
-    start_timer();
-
-    for (int j = 0; j < THREADS; j++) {
-      pthread_create(&tids[j], NULL, partialIntegration, (void*) &blocks[j]);
+    block_size = RECTS / THREADS;
+    for (i = 0; i < THREADS; i++) {
+        blocks[i].start = i * block_size;
+        if (i != (THREADS - 1)) {
+            blocks[i].end = (i + 1) * block_size;
+        } else {
+            blocks[i].end = RECTS;
+        }
+        blocks[i].x = 0;
+        blocks[i].dx = PI / RECTS;
+        blocks[i].fn = sin;
     }
 
-    result = 0;
-    for (int j = 0; j < THREADS; j++) {
-      pthread_join(tids[j], NULL);
-      result += (blocks[j].acum * blocks[j].dx);
-    }
+	std::cout << "Starting...\n";
+	ms = 0;
+	for (j = 0; j < N; j++) {
+        start_timer();
 
-    ms += stop_timer();
-  }
-  cout << "---- Multithread ----\n";
-  cout << "Result = " << result << "\n";
-  cout << "Time = " << (ms / N) << "ms\n";
+        result = 0;
+        for (i = 0; i < THREADS; i++) {
+            pthread_create(&tids[i], NULL, integration, (void*) &blocks[i]);
+        }
+        for (i = 0; i < THREADS; i++) {
+            pthread_join(tids[i], (void**) &acum);
+            result += (*acum);
+            delete acum;
+        }
 
-  return 0;
+        ms += stop_timer();
+	}
+	std::cout << "area = " << setprecision(5) << result << "\n";
+	std::cout << "avg time =  " << setprecision(5) << (ms / N) << "\n";
+
+	return 0;
 }

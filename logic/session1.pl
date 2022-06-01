@@ -23,8 +23,3 @@ nand(X, Y, Z) :- and(X, Y, R), neg(R, Z).
 
 nor(X, Y, Z) :- or(X, Y, R), neg(R, Z).
 
-altXOR(X, Y, Z) :-
-    nand(X, Y, R1),
-    nand(X, R1, R2),
-    nand(R1, Y, R3),
-    nand(R2, R3, Z).
