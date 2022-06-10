@@ -1,16 +1,16 @@
 // =================================================================
 //
-// File: race-condition.cpp
+// File: no-race-condition-1.cpp
 // Author: Pedro Perez
-// Description: This file implements a race condition problem.
-//              To compile: g++ race-condition.cpp -lpthread
+// Description: This file implements a synchronization strategy on
+//              a shared variable using pthreads.
+//              To compile: g++ no-race-conditions.cpp -lpthread -o app
 //
 // Copyright (c) 2020 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial
 // purpose.
 //
 // =================================================================
-
 #include <iostream>
 #include <iomanip>
 #include <unistd.h>
@@ -27,17 +27,20 @@ const int MAX_SLEEP_TIME = 3;
 const int MAX_THREADS = 4;
 const int MAX_ITERATIONS = 5;
 
+pthread_mutex_t mutex_lock;
+
 void* increment(void *param) {
     int id, sleepTime;
 
     id = *((int*) param);
     for (int i = 0; i < MAX_ITERATIONS; i++) {
-        //cout << "id = " << id << " counter initial value = " << counter << "\n";
+        pthread_mutex_lock(&mutex_lock);
         counter++;
         sleepTime = (rand() % MAX_SLEEP_TIME) + 1;
         sleep(sleepTime);
         cout << "id = " << id << " incrementing, counter = "
              << counter << "\n";
+        pthread_mutex_unlock(&mutex_lock);
     }
     pthread_exit(NULL);
 }
@@ -47,12 +50,13 @@ void* decrement(void *param) {
 
     id = *((int*) param);
     for (int i = 0; i < MAX_ITERATIONS; i++) {
+        pthread_mutex_lock(&mutex_lock);
         counter--;
         sleepTime = (rand() % MAX_SLEEP_TIME) + 1;
         sleep(sleepTime);
         cout << "id = " << id << " decrementing, counter = "
              << counter << "\n";
-
+        pthread_mutex_unlock(&mutex_lock);
     }
     pthread_exit(NULL);
 }
@@ -64,6 +68,7 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < MAX_THREADS; i++) {
         id[i] = i;
     }
+    pthread_mutex_init(&mutex_lock, NULL);
 
     for (int i = 0; i < MAX_THREADS; i++) {
         if (i % 2 == 0) {

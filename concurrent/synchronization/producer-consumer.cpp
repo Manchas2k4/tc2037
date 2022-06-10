@@ -4,7 +4,7 @@
 // Author: Pedro Perez
 // Description: This file implements the producer-consumer
 //              synchronization problem using pthreads.
-//              To compile: g++ producer-consumer.cpp -lpthread
+//              To compile: g++ producer-consumer.cpp -lpthread -o app
 //
 // Copyright (c) 2020 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial

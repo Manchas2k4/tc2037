@@ -4,7 +4,7 @@
 // Author: Pedro Perez
 // Description: This file implements a synchronization strategy on
 //              a shared variable using pthreads.
-//              To compile: g++ no-race-conditions.cpp -lpthread
+//              To compile: g++ no-race-conditions.cpp -lpthread -o app
 //
 // Copyright (c) 2020 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial
