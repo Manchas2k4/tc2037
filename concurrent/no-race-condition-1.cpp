@@ -1,6 +1,6 @@
 // =================================================================
 //
-// File: dinning-philosophers.cpp
+// File: no-race-condition-1.cpp
 // Author: Pedro Perez
 // Description: This file implements a synchronization strategy on
 //              a shared variable using pthreads.
@@ -38,7 +38,8 @@ void* increment(void *param) {
         counter++;
         sleepTime = (rand() % MAX_SLEEP_TIME) + 1;
         sleep(sleepTime);
-        cout << "id = " << id << " incrementing, counter = " << counter << "\n";
+        cout << "id = " << id << " incrementing, counter = "
+             << counter << "\n";
         pthread_mutex_unlock(&mutex_lock);
     }
     pthread_exit(NULL);
@@ -53,7 +54,8 @@ void* decrement(void *param) {
         counter--;
         sleepTime = (rand() % MAX_SLEEP_TIME) + 1;
         sleep(sleepTime);
-        cout << "id = " << id << " decrementing, counter = " << counter << "\n";
+        cout << "id = " << id << " decrementing, counter = "
+             << counter << "\n";
         pthread_mutex_unlock(&mutex_lock);
     }
     pthread_exit(NULL);
