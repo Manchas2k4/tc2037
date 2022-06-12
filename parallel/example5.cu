@@ -1,84 +1,80 @@
-/* This code will generate a fractal image. Uses OpenCV, to compile:
-   nvcc example5.cu `pkg-config --cflags --libs opencv`  */
+// =================================================================
+//
+// File: example6.cu
+// Author: Pedro Perez
+// Description: This file implements the multiplication of a matrix
+//				by a vector using CUDA.
+//
+// Copyright (c) 2020 by Tecnologico de Monterrey.
+// All Rights Reserved. May be reproduced for any non-commercial
+// purpose.
+//
+// =================================================================
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <opencv/highgui.h>
-#include "utils/cheader.h"
+#include <limits.h>
+#include <cuda_runtime.h>
+#include "utils.h"
 
-#define BLUR_WINDOW 15
+#define RENS    30000
+#define COLS    30000
+#define THREADS 256
+#define BLOCKS	MMIN(32, (((REN * COLS) / THREADS) + 1))
 
-typedef enum color {BLUE, GREEN, RED} Color;
+__global__ void matrix_vector(int *m, int *b, int *c) {
+	int tid = threadIdx.x + (blockIdx.x * blockDim.x);
+  int j, sum = 0;
 
-__global__ void blur(unsigned char *src, unsigned char *dest, int width, int heigth, int blur_window, int step, int channels) { 
-	int i, j, side_pixels, cells;
-	int ren, col, tmp_ren, tmp_col;
-	float r, g, b;
-	
-	ren = blockIdx.x;
-	col = threadIdx.x;
-	side_pixels = (blur_window - 1) / 2;
-	cells = (blur_window * blur_window);
-	r = 0; g = 0; b = 0;
-	for (i = -side_pixels; i <= side_pixels; i++) {
-		for (j = -side_pixels; j <= side_pixels; j++) {
-			tmp_ren = MIN( MAX(ren + i, 0), heigth - 1 );
-			tmp_col = MIN( MAX(col + j, 0), width - 1);
-			
-			r += (float) src[(tmp_ren * step) + (tmp_col * channels) + RED];
-			g += (float) src[(tmp_ren * step) + (tmp_col * channels) + GREEN];
-			b += (float) src[(tmp_ren * step) + (tmp_col * channels) + BLUE];
-		}
-	}
-	
-	dest[(ren * step) + (col * channels) + RED] =  (unsigned char) (r / cells);
-	dest[(ren * step) + (col * channels) + GREEN] = (unsigned char) (g / cells);
-	dest[(ren * step) + (col * channels) + BLUE] = (unsigned char) (b / cells);
+  while (tid < RENS){
+    sum = 0;
+    for(j = 0; j < COLS; j++) {
+          sum += (m[(tid * COLS) + j] * b[tid]);
+    }
+    c[tid] = sum;
+		tid += blockDim.x * gridDim.x;
+  }
 }
 
 int main(int argc, char* argv[]) {
-	int i, step, size;
-	double acum; 
-	unsigned char *dev_src, *dev_dest;
-		
-	if (argc != 2) {
-		printf("usage: %s source_file\n", argv[0]);
-		return -1;
+	int i, j, *m, *b, *c;
+  int *d_m, *d_b, *d_c;
+	double ms;
+
+	m = (int*) malloc(sizeof(int) * RENS* COLS);
+	b = (int*) malloc(sizeof(int) * RENS);
+	c = (int*) malloc(sizeof(int) * RENS);
+
+  for (i = 0; i < RENS; i++) {
+		for (j = 0; j < COLS; j++) {
+			m[(i * COLS) + j] = (j + 1);
+		}
+		b[i] = 1;
 	}
-	
-	IplImage *src = cvLoadImage(argv[1], CV_LOAD_IMAGE_COLOR);
-	IplImage *dest = cvCreateImage(cvSize(src->width, src->height), IPL_DEPTH_8U, 3);
-	if (!src) {
-		printf("Could not load image file: %s\n", argv[1]);
-		return -1;
-	}
-	
-	size = src->width * src->height * src->nChannels * sizeof(uchar);
-	cudaMalloc((void**) &dev_src, size);
-	cudaMalloc((void**) &dev_dest, size);
-	
-	cudaMemcpy(dev_src, src->imageData, size, cudaMemcpyHostToDevice);
-	
-	acum = 0;
-	step = src->widthStep / sizeof(uchar);
+
+  cudaMalloc((void**)&d_m, sizeof(int) * RENS* COLS);
+  cudaMalloc((void**)&d_b, sizeof(int) * RENS);
+  cudaMalloc((void**)&d_c, sizeof(int) * RENS);
+
+  cudaMemcpy(d_m, m, sizeof(int) * RENS* COLS, cudaMemcpyHostToDevice);
+  cudaMemcpy(d_b, b, sizeof(int) * RENS, cudaMemcpyHostToDevice);
+
 	printf("Starting...\n");
+	ms = 0;
 	for (i = 0; i < N; i++) {
 		start_timer();
-		blur<<<src->height, src->width>>>(dev_src, dev_dest, src->width, src->height, BLUR_WINDOW, step, src->nChannels);
-		acum += stop_timer();
-	}
-	
-	cudaMemcpy(dest->imageData, dev_dest, size, cudaMemcpyDeviceToHost);
-	
-	cudaFree(dev_dest);
-	cudaFree(dev_src);
-	
-	printf("avg time = %.5lf ms\n", (acum / N));
-	
-	cvShowImage("Lenna (Original)", src);
-	cvShowImage("Lenna (Blur)", dest);
-	cvWaitKey(0);
-	cvDestroyWindow("Lenna (Original)");
-	cvDestroyWindow("Lenna (Blur)");
 
+		matrix_vector<<<BLOCKS, THREADS>>>(d_m, d_b, d_c);
+
+		ms += stop_timer();
+	}
+
+  cudaMemcpy(c, d_c, sizeof(int) * RENS, cudaMemcpyDeviceToHost);
+
+	display_array("c:", c);
+	printf("avg time = %.5lf ms\n", (ms / N));
+
+  cudaFree(d_m); cudaFree(d_b); cudaFree(d_c);
+	free(m); free(b); free(c);
 	return 0;
 }
