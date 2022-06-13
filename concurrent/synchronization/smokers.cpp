@@ -1,9 +1,9 @@
 // =================================================================
 //
-// File: readers-writers.cpp
+// File: smokers.cpp
 // Author: Pedro Perez
-// Description: This file implements the readers-writers
-//              synchronization problem using pthreads.
+// Description: This file implements the smokers synchronization
+//              problem using pthreads.
 //              To compile: g++ readers-writers.cpp -lpthread -o app
 //
 // Copyright (c) 2020 by Tecnologico de Monterrey.
