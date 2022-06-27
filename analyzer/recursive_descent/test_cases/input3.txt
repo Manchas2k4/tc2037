@@ -1,5 +1,0 @@
-// ES OTRO COMENTARIO
-
-(12 + 13 * 18 ^ 2) / (5 - 134) + // OTRO MENSAJE
-
-18
