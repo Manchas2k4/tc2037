@@ -1,0 +1,14 @@
+Python:
+https://cheatography.com/davechild/cheat-sheets/regular-expressions/
+
+Scheme:
+https://docs.racket-lang.org/reference/regexp.html
+https://docs.racket-lang.org/guide/regexp.html
+https://osera.cs.grinnell.edu/csc151/readings/regexp.html
+
+C/C++:
+https://linuxhint.com/regular-expression-basics-cpp/
+https://www.softwaretestinghelp.com/regex-in-cpp/
+https://www.youtube.com/watch?v=9K4N6MO_R1Y
+https://www.youtube.com/watch?v=NPccLyAHD6Y
+https://www.youtube.com/watch?v=NPccLyAHD6Y

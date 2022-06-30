@@ -4,7 +4,7 @@ import re
 # Write a Python program that matches a string that has an a followed 
 # by one or more b's
 def text_match(text):
-        patterns = 'ab+?'
+        patterns = 'ab+'
         if re.search(patterns,  text):
                 return 'Found a match!'
         else:
