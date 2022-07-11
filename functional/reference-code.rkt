@@ -36,8 +36,11 @@
        (list-of-chars->list-of-strings (cdr loc)
                                        '()
                                        (cons
-                                        (list->string aux)
-                                        result))]
+                                        (list->string
+                                         (cons (car loc) '()))
+                                        (cons
+                                         (list->string aux)
+                                         result)))]
       [(char-punctuation? (car loc))
        (list-of-chars->list-of-strings (cdr loc)
                                        '()
@@ -85,3 +88,4 @@
     (write-file filename (list-of-strings->string strlst))))
 ;; usage example
 ;; (list-of-strings->file (file->list-of-strings input-filename) output-filename)
+
