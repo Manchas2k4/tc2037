@@ -18,8 +18,7 @@ void* task(void* param) {
 
   b = (Block*) param;
   for (int i = b->start; i < b->end; i++) {
-    cout << "TID = " << b->id
-         << " i = " << i << "\n";
+    cout << "TID = " << b->id << " i = " << i << "\n";
   }
   pthread_exit(0);
 }

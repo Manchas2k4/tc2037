@@ -31,13 +31,26 @@ void addVectors(int *c, int *a, int *b, int size) {
 // =================================================================
 
 // =========================== CONCURRENT ==========================
-// ADD CODE HERE
+typedef struct {
+    int start, end, *a, *b, *c;
+} Block;
+
+void* task(void* param) {
+    Block *block;
+
+    block = (Block*) param;
+    for (int i = block->start; i < block->end; i++) {
+        block->c[i] = block->a[i] + block->b[i];
+    }
+    pthread_exit(0);
+}
 // =================================================================
 
 int main(int argc, char* argv[]) {
 	double sequential, concurrent;
-    int *a, *b, *c;
-	//ADD CODE HERE
+    int *a, *b, *c, blockSize;
+	pthread_t tids[THREADS];
+    Block blocks[THREADS];
 	
     a = new int[SIZE];
     fill_array(a, SIZE);
@@ -49,6 +62,7 @@ int main(int argc, char* argv[]) {
 
     c = new int[SIZE];
 
+    // =========================== SEQUENTIAL ==========================
     sequential = 0;
     for (int i = 0; i < N; i++) {
 		start_timer();
@@ -59,12 +73,34 @@ int main(int argc, char* argv[]) {
 	}
     display_array("c: ", c);
     cout << "sequential average time = " << setprecision(5) << (sequential / N) << " ms" << endl;
+    // =================================================================
+    // =========================== CONCURRENT ==========================
+    blockSize = SIZE / THREADS;
+	for (int i = 0; i < THREADS; i++) {
+        blocks[i].start = i * blockSize;
+        blocks[i].end = (i != (THREADS - 1))? (i + 1) * blockSize : SIZE;
+        blocks[i].a = a;
+        blocks[i].b = b;
+        blocks[i].c = c;
+    }
 
-	// ADD CODE HERE
+    concurrent = 0;
+    for (int j = 0; j < N; j++) {
+        start_timer();
+        for (int i = 0; i < THREADS; i++) {
+            pthread_create(&tids[i], NULL, task, (void*) &blocks[i]);
+        }
+
+        for (int i = 0; i < THREADS; i++) {
+            pthread_join(tids[i], NULL);
+        }
+        concurrent += stop_timer();
+    }
     display_array("c: ", c);
     cout << "concurrent average time = " << setprecision(5) << (concurrent / N) << " ms" << endl;
+    // =================================================================
 
-    cout << "speed up = " << setprecision(5) << (sequential / concurrent) << " ms" << endl;
+    cout << "speed up = " << setprecision(2) << (sequential / concurrent) << endl;
     
     delete [] a;
     delete [] b;

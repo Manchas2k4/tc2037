@@ -18,33 +18,48 @@
 #include <pthread.h>
 #include "utils.h"
 
-const int MAXIMUM = 10000000; //1e7
+const int MAXIMUM = 100000000; //1e8
 const int THREADS = 8;
+const double SQ = sqrt(5.0);
+const double PHI = (1.0 + SQ) / 2.0;
+const double PSI = (1.0 - SQ) / SQ;
 
 using namespace std;
 
 // =========================== SEQUENTIAL ==========================
 void fibonacciNumber(double *array, int size) {
-    double sq = sqrt(5.0);
-    double phi = (1.0 + sq) / 2.0;
-    double psi = (1.0 - sq) / sq;
     for (int i = 0; i < size; i++) {
-       array[i] = round((pow(phi, i) - pow(psi, i)) / sq);
+       array[i] = round((pow(PHI, i) - pow(PSI, i)) / SQ);
     }
 }
 // =================================================================
 
 // =========================== CONCURRENT ==========================
-// ADD CODE HERE
+typedef struct {
+    int start, end;
+    double *array;
+} Block;
+
+void* task(void* param) {
+    Block *block;
+
+    block = (Block*) param;
+    for (int i = block->start; i < block->end; i++) {
+        block->array[i] = round((pow(PHI, i) - pow(PSI, i)) / SQ);
+    }
+    pthread_exit(0);
+}
 // =================================================================
 
 int main(int argc, char* argv[]) {
-	double sequential, concurrent;
+	double sequential, concurrent, blockSize;
     double *array;
-    // ADD CODE HERE
+    pthread_t tids[THREADS];
+    Block blocks[THREADS];
 	
     array = new double[MAXIMUM];
 
+    // =========================== SEQUENTIAL ==========================
     sequential = 0;
     for (int i = 0; i < N; i++) {
 		start_timer();
@@ -58,15 +73,35 @@ int main(int argc, char* argv[]) {
     }
     cout << "\n";
     cout << "sequential average time = " << setprecision(5) << (sequential / N) << " ms" << endl;
+|   // =================================================================
+    // =========================== CONCURRENT ==========================
+    blockSize = MAXIMUM / THREADS;
+    for (int i = 0; i < THREADS; i++) {
+        blocks[i].start = i * blockSize;
+        blocks[i].end = (i != (THREADS - 1))? (i + 1) * blockSize : MAXIMUM;
+        blocks[i].array = array;
+    }
 
-    // ADD CODE HERE
+    concurrent = 0;
+    for (int j = 0; j < N; j++) {
+        start_timer();
+        for (int i = 0; i < THREADS; i++) {
+            pthread_create(&tids[i], NULL, task, (void*) &blocks[i]);
+        }
+
+        for (int i = 0; i < THREADS; i++) {
+            pthread_join(tids[i], NULL);
+        }
+        concurrent += stop_timer();
+    }
     for (int i = 0; i < DISPLAY; i++) {
         cout << fixed << setprecision(0) << array[i] << " ";
     }
     cout << "\n";
     cout << "concurrent average time = " << setprecision(5) << (concurrent / N) << " ms" << endl;
+    // =================================================================
 
-    cout << "speed up = " << setprecision(5) << (sequential / concurrent) << " ms" << endl;
+    cout << "speed up = " << setprecision(2) << (sequential / concurrent) << endl;
 
     delete [] array;
 

@@ -3,18 +3,20 @@
 #include <unistd.h>
 #include <pthread.h>
 
-const int LIMIT = 5;
+const int LIMIT = 20;
 const int THREADS = 4;
 
 using namespace std;
 
 void* task(void* param) {
   int *id;
+  //int id;
 
   id = (int*) param;
+  //id = *((int*) param);
   for (int i = 0; i < LIMIT; i++) {
-    cout << "TID = " << (*id)
-         << " i = " << i << "\n";
+    cout << "TID = " << (*id) << " i = " << i << "\n";
+    //cout << "TID = " << (id) << " i = " << i << "\n";
   }
   delete id;
   pthread_exit(0);
@@ -28,6 +30,7 @@ int main(int argc, char* argv[]) {
     j = new int;
     *j = i;
     pthread_create(&tid[i], NULL, task, (void*) j);
+    //pthread_create(&tid[i], NULL, task, (void*) &i);
   }
 
   for (int i = 0; i < THREADS; i++) {
