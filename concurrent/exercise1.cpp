@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     cout << "\n";
     cout << "concurrent average time = " << setprecision(5) << (concurrent / N) << " ms" << endl;
 
-    cout << "speed up = " << setprecision(5) << (sequential / concurrent) << " ms" << endl;
+    //cout << "speed up = " << setprecision(5) << (sequential / concurrent) << " ms" << endl;
 
     delete [] array;
 
