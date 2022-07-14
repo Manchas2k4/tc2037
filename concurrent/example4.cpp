@@ -18,7 +18,7 @@
 #include <pthread.h>
 #include "utils.h"
 
-const int SIZE = 10000; //1e6
+const int SIZE = 10000; //1e4
 const int THREADS = 8;
 
 using namespace std;
@@ -42,13 +42,35 @@ void enumerationSort(int *array, int *ordered, int size) {
 // =================================================================
 
 // =========================== CONCURRENT ==========================
-// ADD CODE HERE
+typedef struct {
+    int start, end, size, *array, *ordered;
+} Block;
+
+void* task(void* param) {
+    Block *block;
+    int count;
+
+    block = (Block*) param;
+    for (int i = block->start; i < block->end; i++) {
+        count = 0;
+        for (int j = 0; j < block->size; j++) {
+            if (block->array[j] < block->array[i]) {
+                count++;
+            } else if (block->array[i] == block->array[j] && j < i) {
+                count++;
+            }
+        }
+        block->ordered[count] = block->array[i];
+    }
+    pthread_exit(0);
+}
 // =================================================================
 
 int main(int argc, char* argv[]) {
 	double sequential, concurrent;
-    int *array, *ordered;
-    // ADD CODE HERE
+    int *array, *ordered, blockSize;
+    pthread_t tids[THREADS];
+    Block blocks[THREADS];
 	
     array = new int[SIZE];
     random_array(array, SIZE);
@@ -56,6 +78,7 @@ int main(int argc, char* argv[]) {
 
     ordered = new int[SIZE];
 
+    // =========================== SEQUENTIAL ==========================
     sequential = 0;
     for (int i = 0; i < N; i++) {
 		start_timer();
@@ -67,13 +90,35 @@ int main(int argc, char* argv[]) {
 
     display_array("after: ", ordered);
     cout << "sequential average time = " << setprecision(5) << (sequential / N) << " ms" << endl;
+    // =================================================================
+    // =========================== CONCURRENT ==========================
+    blockSize = SIZE / THREADS;
+    for (int i = 0; i < THREADS; i++) {
+        blocks[i].start = i * blockSize;
+        blocks[i].end = (i != (THREADS - 1))? (i + 1) * blockSize : SIZE;
+        blocks[i].array = array;
+        blocks[i].ordered = ordered;
+        blocks[i].size = SIZE;
+    }
 
-    // ADD CODE HERE
+    concurrent = 0;
+    for (int j = 0; j < N; j++) {
+        start_timer();
+        for (int i = 0; i < THREADS; i++) {
+            pthread_create(&tids[i], NULL, task, (void*) &blocks[i]);
+        }
+
+        for (int i = 0; i < THREADS; i++) {
+            pthread_join(tids[i], NULL);
+        }
+        concurrent += stop_timer();
+    }
     display_array("after: ", ordered);
     cout << "concurrent average time = " << setprecision(5) << (concurrent / N) << " ms" << endl;
 
-    cout << "speed up = " << setprecision(5) << (sequential / concurrent) << " ms" << endl;
-    
+    cout << "speed up = " << setprecision(5) << (sequential / concurrent) << endl;
+    // =================================================================
+
     delete [] array;
     delete [] ordered;
 

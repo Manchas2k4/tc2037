@@ -33,11 +33,11 @@ using namespace std;
 // =================================================================
 
 int main(int argc, char* argv[]) {
-	double sequential, concurrent;
-    int *array, result;
+	double sequential, concurrent, result;
+    int *array;
 	
     array = new int[SIZE];
-    random_array(array, SIZE);
+    fill_array(array, SIZE);
     display_array("array: ", array);
 
     sequential = 0;
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
     cout << "result = " << fixed << setprecision(0) << result << endl;
     cout << "concurrent average time = " << setprecision(5) << (concurrent / N) << " ms" << endl;
 
-    cout << "speed up = " << setprecision(5) << (sequential / concurrent) << " ms" << endl;
+    cout << "speed up = " << setprecision(5) << (sequential / concurrent) << endl;
     
     delete [] array;
 
