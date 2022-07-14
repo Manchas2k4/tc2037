@@ -2,8 +2,8 @@
 //
 // File: exercise2.cpp
 // Author: Pedro Perez                                             -
-// Description: This file contains the code that counts the number 
-//  of times a certain number appears within an array.
+// Description: This file contains the code that Tcalculates the sum 
+// of all integers pairs contained in an array of integers
 //
 // Copyright (c) 2020 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial
