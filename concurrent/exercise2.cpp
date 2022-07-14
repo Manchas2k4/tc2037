@@ -2,7 +2,7 @@
 //
 // File: exercise2.cpp
 // Author: Pedro Perez                                             -
-// Description: This file contains the code that Tcalculates the sum 
+// Description: This file contains the code that calculates the sum 
 // of all integers pairs contained in an array of integers
 //
 // Copyright (c) 2020 by Tecnologico de Monterrey.
