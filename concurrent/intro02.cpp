@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <pthread.h>
 
-const int LIMIT = 20;
+const int LIMIT = 30;
 const int THREADS = 4;
 
 using namespace std;

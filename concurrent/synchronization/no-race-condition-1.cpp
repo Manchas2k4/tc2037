@@ -35,6 +35,7 @@ void* increment(void *param) {
     id = *((int*) param);
     for (int i = 0; i < MAX_ITERATIONS; i++) {
         pthread_mutex_lock(&mutex_lock);
+        cout << "id = " << id << " counter initial value = " << counter << "\n";
         counter++;
         sleepTime = (rand() % MAX_SLEEP_TIME) + 1;
         sleep(sleepTime);
@@ -51,6 +52,7 @@ void* decrement(void *param) {
     id = *((int*) param);
     for (int i = 0; i < MAX_ITERATIONS; i++) {
         pthread_mutex_lock(&mutex_lock);
+        cout << "id = " << id << " counter initial value = " << counter << "\n";
         counter--;
         sleepTime = (rand() % MAX_SLEEP_TIME) + 1;
         sleep(sleepTime);

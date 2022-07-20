@@ -12,3 +12,8 @@ https://www.softwaretestinghelp.com/regex-in-cpp/
 https://www.youtube.com/watch?v=9K4N6MO_R1Y
 https://www.youtube.com/watch?v=NPccLyAHD6Y
 https://www.youtube.com/watch?v=NPccLyAHD6Y
+
+NEW C/C++
+https://riptutorial.com/cplusplus/topic/1681/regular-expressions
+https://www.softwaretestinghelp.com/regex-in-cpp/
+https://linuxhint.com/regular-expression-basics-cpp/
