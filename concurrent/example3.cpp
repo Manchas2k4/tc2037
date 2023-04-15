@@ -24,7 +24,7 @@
 using namespace std;
 
 const double PI = 3.14159265;
-const int RECTS = 1000000000; //1e9
+const int RECTS = 100000000; //1e9
 const int THREADS = 4;
 
 typedef struct {
