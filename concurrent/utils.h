@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 #define N 			10
-#define DISPLAY		100
+#define DISPLAY		50
 #define TOP_VALUE	10000
 
 // =================================================================
