@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
 	double oneThread, multiThread;
 
 	// These variables are used by thread management.
-	double blockSize;
+	int blockSize;
 	Block blocks[THREADS];
 	pthread_t tids[THREADS];
 
@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
 	}
 	oneThread /= N;
 	cout << "result one thread = " << fixed << setprecision(0) << result << "\n";
-	cout << "one thread avg time =  " << fixed << setprecision(6) << oneThread << "\n";
+	cout << "one thread avg time =  " << fixed << setprecision(6) << oneThread << " ms\n";
 	// ======================= ONE THREAD EXECUTION ========================
 
     // ======================= MULTITHREAD EXECUTION ========================
@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
 	}
 	multiThread /= N;
 	cout << "result multithread = " << fixed << setprecision(0) << result << "\n";
-	cout << "multithread avg time =  " << fixed << setprecision(6) << multiThread << "\n";
+	cout << "multithread avg time =  " << fixed << setprecision(6) << multiThread << " ms\n";
 	// ======================= MULTITHREAD EXECUTION ========================
 
 	cout << "SpeedUp reached: " << fixed << setprecision(2) << (oneThread / multiThread) << ".\n";

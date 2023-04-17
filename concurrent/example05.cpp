@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
 	}
 	oneThread /= N;
 	display_array("after one thread: ", temp);
-	cout << "one thread avg time =  " << fixed << setprecision(6) << oneThread << "\n";
+	cout << "one thread avg time =  " << fixed << setprecision(6) << oneThread << " ms\n";
 	// ======================= ONE THREAD EXECUTION ========================
 
     
@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
 	}
 	multiThread /= N;
 	display_array("after multithread:", temp);
-	cout << "multithread avg time =  " << fixed << setprecision(6) << multiThread << "\n";
+	cout << "multithread avg time =  " << fixed << setprecision(6) << multiThread << " ms\n";
 	// ======================= MULTITHREAD EXECUTION ========================
 
 	cout << "SpeedUp reached: " << fixed << setprecision(2) << (oneThread / multiThread) << ".\n";
