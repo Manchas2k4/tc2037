@@ -16,6 +16,8 @@
 #ifndef MERGE_H
 #define MERGE_H
 
+#include <cstring>
+
 // =================================================================
 // Merge both halves of A, using B array as temporary storage.
 //

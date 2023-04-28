@@ -2,9 +2,13 @@
 // File: example06.cpp
 // Author: Pedro Perez
 // Description: This file contains a parallel implementation of
-//              the merge sort algorithm.
+//              the merge sort algorithm using one thread and 
+//				multiple threads. Also, it calculates the SpeedUp. 
+//				This is not the best option, how you can see in the 
+//				SpeedUp with get. A better option, in example07, 
+//				uses a pool of threads.
 //
-//        To compile: g++ example06.cpp -lpthread
+//        		To compile: g++ example06.cpp -lpthread
 //
 // Copyright (c) 2023 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial
