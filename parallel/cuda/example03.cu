@@ -3,10 +3,11 @@
 // File: example03.cpp
 // Author: Pedro Perez
 // Description: This file implements the multiplication of a matrix
-//				by a vector using POSIX threads. To compile:
-//				g++ -o app -pthread example01.cpp
+//				by a vector. The time this implementation takes will
+//				be used as the basis to calculate the improvement
+//				obtained with parallel technologies.
 //
-// Copyright (c) 2023 by Tecnologico de Monterrey.
+// Copyright (c) 2022 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial
 // purpose.
 //
@@ -15,45 +16,41 @@
 #include <iostream>
 #include <iomanip>
 #include <chrono>
-#include <pthread.h>
 #include "utils.h"
+#include <cuda_runtime.h>
 
 using namespace std;
 using namespace std::chrono;
 
-#define RENS 		30000
-#define COLS 		30000
-#define MAXTHREADS 	12
+#define RENS 	10000
+#define COLS 	10000
+#define THREADS	512
+#define BLOCKS	min(32, (((RENS * COLS) / THREADS) + 1))
 
-typedef struct {
-	int *m, *b, *c;
-	int start, end;
-} Block;
+__global__ void matrix_vector(int *m, int *b, int *c) {
+	int index, acum;
 
-void* matrix_vector(void* param) {
-	Block *block;
+	index = threadIdx.x + (blockIdx.x * blockDim.x);
 
-	block = (Block*) param;
-	for (int i = block->start; i < block->end; i++) {
-		int acum = 0;
+	while (index < RENS) {
+		acum = 0;
 		for (int j = 0; j < COLS; j++) {
-			acum += (block->m[(i * COLS) + j] * block->b[i]);
+			acum += (m[index * COLS] + j) * b[index];
 		}
-		block->c[i] = acum;
+		c[index] = acum;
+
+		//index += blockDim.x;
+		index += (blockDim.x * gridDim.x); 
 	}
-	return 0;
 }
 
 int main(int argc, char* argv[]) {
 	int *m, *b, *c;
+	int *deviceM, *deviceB, *deviceC;
 
 	// These variables are used to keep track of the execution time.
 	high_resolution_clock::time_point start, end;
 	double timeElapsed;
-
-	int blockSize;
-	Block blocks[MAXTHREADS];
-	pthread_t threads[MAXTHREADS];
 
 	m = new int[RENS * COLS];
 	b = new int [RENS];
@@ -66,32 +63,31 @@ int main(int argc, char* argv[]) {
 		b[i] = 1;
 	}
 
-	blockSize = RENS / MAXTHREADS;
-	for (int i = 0; i < MAXTHREADS; i++) {
-		blocks[i].m = m;
-		blocks[i].b = b;
-		blocks[i].c = c;
-		blocks[i].start = (i * blockSize);
-		blocks[i].end = (i != (MAXTHREADS - 1))? ((i + 1) * blockSize) : RENS;
-	}
+	cudaMalloc((void**) &deviceM, 
+		(RENS * COLS) * sizeof(int));
+	cudaMalloc((void**) &deviceB, RENS * sizeof(int));
+	cudaMalloc((void**) &deviceC, RENS * sizeof(int));
+
+	cudaMemcpy(deviceM, m, (RENS * COLS) * sizeof(int),
+		cudaMemcpyHostToDevice);
+	cudaMemcpy(deviceB, b, RENS * sizeof(int),
+		cudaMemcpyHostToDevice);
 
 	cout << "Starting...\n";
 	timeElapsed = 0;
 	for (int j = 0; j < N; j++) {
 		start = high_resolution_clock::now();
 
-		for (int i = 0; i < MAXTHREADS; i++) {
-			pthread_create(&threads[i], NULL, matrix_vector, &blocks[i]);
-		}
-
-		for (int i = 0; i < MAXTHREADS; i++) {
-			pthread_join(threads[i], NULL);
-		}
+		matrix_vector<<<BLOCKS, THREADS>>>(deviceM,
+			deviceB, deviceC);
 
 		end = high_resolution_clock::now();
 		timeElapsed += 
 			duration<double, std::milli>(end - start).count();
 	}
+	cudaMemcpy(c, deviceC, RENS * sizeof(int), 
+		cudaMemcpyDeviceToHost);
+
 	display_array("c:", c);
 	cout << "avg time = " << fixed << setprecision(3) 
 		 << (timeElapsed / N) <<  " ms\n";
@@ -100,5 +96,9 @@ int main(int argc, char* argv[]) {
 	delete [] b;
 	delete [] c;
 
+	cudaFree(deviceM);
+	cudaFree(deviceB);
+	cudaFree(deviceC);
+	
 	return 0;
 }

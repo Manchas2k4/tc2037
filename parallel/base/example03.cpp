@@ -21,15 +21,15 @@
 using namespace std;
 using namespace std::chrono;
 
-#define RENS 10000
-#define COLS 10000
+#define RENS 30000
+#define COLS 30000
 
 void matrix_vector(int *m, int *b, int *c) {
-	int i, j, acum;
+	int acum;
 
-	for (i = 0; i < RENS; i++) {
+	for (int i = 0; i < RENS; i++) {
 		acum = 0;
-		for (j = 0; j < COLS; j++) {
+		for (int j = 0; j < COLS; j++) {
 			acum += (m[(i * COLS) + j] * b[i]);
 		}
 		c[i] = acum;

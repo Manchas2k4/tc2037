@@ -28,7 +28,7 @@ using namespace std::chrono;
 
 #define INTERVAL 		 	10000 //1e4
 #define NUMBER_OF_POINTS 	(INTERVAL * INTERVAL) // 1e8
-#define MAXTHREADS 			8
+#define MAXTHREADS 			12
 
 typedef struct {
 	int start, end, count;

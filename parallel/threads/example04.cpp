@@ -24,7 +24,7 @@ using namespace std;
 using namespace std::chrono;
 
 #define SIZE 		1000000000 // 1e9
-#define MAXTHREADS 	8
+#define MAXTHREADS 	12
 
 typedef struct {
 	int *array, result;

@@ -25,7 +25,7 @@ using namespace std;
 using namespace std::chrono;
 
 #define SIZE 	10000000 //1e7
-#define THREADS	8
+#define THREADS	12
 
 typedef struct {
 	int *A, *B, size, index, blockSize, threadsRequired;
@@ -106,6 +106,7 @@ void parallel_merge_sort(int *array, int size) {
 		for (int i = 0; i < threadsRequired; i++) {
 			pthread_join(threads[i], NULL);
 		}
+
 		delete [] blocks;
 		delete [] threads;
 		
