@@ -23,7 +23,7 @@
 using namespace std;
 using namespace std::chrono;
 
-#define SIZE 100000000 //1e8
+#define SIZE 1000000000 //1e9
 
 void replace(int *array, int size, int x, int y) {
 	int i;

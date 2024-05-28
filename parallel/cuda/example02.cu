@@ -24,7 +24,7 @@
 using namespace std;
 using namespace std::chrono;
 
-#define SIZE 	100000000 //1e8
+#define SIZE 	1000000000 //1e9
 #define THREADS 512
 #define BLOCKS	min(32, ((SIZE / THREADS) + 1))
 
@@ -32,9 +32,11 @@ __global__ void replace(int *source, int *dest,
 			int *oldElement, int* newElement) {
 	int index = threadIdx.x + (blockIdx.x * blockDim.x);
 
-	if (index < SIZE) {
+	while (index < SIZE) {
 		dest[index] = (source[index] == *oldElement)?
 			*newElement : source[index];
+
+		index += (blockDim.x * gridDim.x);
 	}
 }
 
@@ -73,8 +75,6 @@ int main(int argc, char* argv[]) {
 	cout << "Starting...\n";
 	timeElapsed = 0;
 	for (int j = 0; j < N; j++) {
-		memcpy(aux, array, sizeof(int) * SIZE);
-		
 		start = high_resolution_clock::now();
 
 		replace<<<BLOCKS, THREADS>>>(deviceArray, deviceAux, 

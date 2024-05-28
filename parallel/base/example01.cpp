@@ -21,7 +21,7 @@
 using namespace std;
 using namespace std::chrono;
 
-#define SIZE 10000000 // 1e7
+#define SIZE 1000000000 // 1e9
 
 void add_vector(int *result, int *a, int *b, int size) {
 	for (int i = 0; i < size; i++) {
