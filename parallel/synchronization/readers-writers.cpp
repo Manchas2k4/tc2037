@@ -22,8 +22,8 @@
 
 using namespace std;
 
-const int MAX_READERS = 20;
-const int MAX_WRITERS = 2;
+const int MAX_READERS = 15;
+const int MAX_WRITERS = 5;
 const int MAX_TIMES = 5;
 const int MAX_SLEEP_TIME = 5;
 
@@ -106,7 +106,7 @@ void* writer(void *param) {
 
   for (int i = 0; i < MAX_TIMES; i++) {
     beginWriting(id);
-    sleep(1);
+    sleep(3);
     endWriting(id);
     sleep((MAX_SLEEP_TIME % 5) + 1);
   }
