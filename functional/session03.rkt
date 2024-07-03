@@ -53,6 +53,42 @@
       [else (append (my-reverse (cdr lst))
                     (list (car lst)))])))
 
+(define swapper
+  (lambda (a b lst)
+    (cond
+      [(null? lst) '()]
+      [(equal? a (car lst)) (cons b (swapper a b (cdr lst)))]
+      [(equal? b (car lst)) (cons a (swapper a b (cdr lst)))]
+      [else (cons (car lst) (swapper a b (cdr lst)))])))
+
+(define deep-lst '(1 ((2) 3) (4) (5 6 7) 8 9 10))
+
+(define len
+  (lambda (deep-lst)
+    (cond
+      [(null? deep-lst) 0]
+      [(list? (car deep-lst)) (+ (len (car deep-lst))
+                                 (len (cdr deep-lst)))]
+      [else (+ 1 (len (cdr deep-lst)))])))
+
+(define sum
+  (lambda (deep-lst)
+    (cond
+      [(null? deep-lst) 0]
+      [(list? (car deep-lst)) (+ (sum (car deep-lst))
+                                 (sum (cdr deep-lst)))]
+      [else (+ (car deep-lst) (sum (cdr deep-lst)))])))
+
+(define count-even
+  (lambda (deep-lst)
+    (cond
+      [(null? deep-lst) 0]
+      [(list? (car deep-lst)) (+ (count-even (car deep-lst))
+                                 (count-even (cdr deep-lst)))]
+      [(even? (car deep-lst)) (+ 1
+                                 (count-even (cdr deep-lst)))]
+      [else (+ 0 (count-even (cdr deep-lst)))])))
+
 
 
 
