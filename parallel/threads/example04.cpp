@@ -3,9 +3,9 @@
 // File: example04.cpp
 // Author: Pedro Perez
 // Description: This file implements the algorithm to find the 
-//				minimum value in an array using POSIX threads. To 
-//				compile:
-//				g++ -o app -pthread example04.cpp
+//		minimum value in an array using POSIX threads. To 
+//		compile:
+//		g++ -o app -pthread example04.cpp
 //
 // Copyright (c) 2023 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial
