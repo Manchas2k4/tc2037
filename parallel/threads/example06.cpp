@@ -3,9 +3,9 @@
 // File: example06.cpp
 // Author: Pedro Perez
 // Description: This file contains the code to perform the numerical
-//				integration of a function within a defined interval 
-//				using POSIX threads. To compile:
-//				g++ -o app -pthread example06.cpp
+//		integration of a function within a defined interval 
+//		using POSIX threads. To compile:
+//		g++ -o app -pthread example06.cpp
 //
 // Copyright (c) 2023 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial
