@@ -3,9 +3,9 @@
 // File: example02.cpp
 // Author: Pedro Perez
 // Description: This file contains the code that looks for an element 
-//				X within the array and replaces it with Y using 
-//				POSIX threads. To compile:
-//				g++ -o app -pthread example02.cpp
+//		X within the array and replaces it with Y using POSIX 
+//		threads. To compile:
+//		g++ -o app -pthread example02.cpp
 //
 // Copyright (c) 2023 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial
