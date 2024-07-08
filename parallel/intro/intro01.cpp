@@ -1,4 +1,15 @@
-// To compile: g++ -o app -pthread intro01.cpp
+// =================================================================
+//
+// File: intro01.cpp
+// Author: Pedro Perez
+// Description: This file show how to create a simple thread
+//				g++ -o app -pthread intr01.cpp
+//
+// Copyright (c) 2023 by Tecnologico de Monterrey.
+// All Rights Reserved. May be reproduced for any non-commercial
+// purpose.
+//
+// =================================================================
 
 #include <iostream>
 #include <iomanip>
