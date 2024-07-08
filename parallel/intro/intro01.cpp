@@ -1,3 +1,5 @@
+// To compile: g++ -o app -pthread intro01.cpp
+
 #include <iostream>
 #include <iomanip>
 #include <pthread.h>
