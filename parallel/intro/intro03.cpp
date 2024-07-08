@@ -1,3 +1,17 @@
+// =================================================================
+//
+// File: intro03.cpp
+// Author: Pedro Perez
+// Description: This file show how the problem with shared variable.
+//              To compile:
+//				g++ -o app -pthread intr03.cpp
+//
+// Copyright (c) 2023 by Tecnologico de Monterrey.
+// All Rights Reserved. May be reproduced for any non-commercial
+// purpose.
+//
+// =================================================================
+
 #include <iostream>
 #include <iomanip>
 #include <pthread.h>
