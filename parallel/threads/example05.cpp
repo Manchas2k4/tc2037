@@ -3,8 +3,8 @@
 // File: example05.c
 // Author: Pedro Perez
 // Description: This file contains the approximation of Pi using the 
-//				Monte-Carlo method using POSIX threads. To compile:
-//				g++ -o app -pthread example05.cpp
+//		Monte-Carlo method using POSIX threads. To compile:
+//		g++ -o app -pthread example05.cpp
 //
 // Reference:
 //	https://www.geogebra.org/m/cF7RwK3H
