@@ -2,7 +2,8 @@
 //
 // File: intro01.cpp
 // Author: Pedro Perez
-// Description: This file show how to create a simple thread
+// Description: This file show how to create a simple thread.
+//              To compile:
 //				g++ -o app -pthread intr01.cpp
 //
 // Copyright (c) 2023 by Tecnologico de Monterrey.
