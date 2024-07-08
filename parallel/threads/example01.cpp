@@ -4,7 +4,7 @@
 // Author: Pedro Perez
 // Description: This file implements the addition of two vectors 
 //				using POSIX threads. To compile:
-//				g++ -o app -fopenmp example01.cpp
+//				g++ -o app --pthread example01.cpp
 //
 // Copyright (c) 2023 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial
