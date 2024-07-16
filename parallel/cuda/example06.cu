@@ -16,7 +16,6 @@
 #include <iomanip>
 #include <chrono>
 #include <algorithm>
-#include <climits>
 #include <cuda_runtime.h>
 #include "math.h"
 #include "utils.h"
@@ -25,9 +24,13 @@ using namespace std;
 using namespace std::chrono;
 
 #define PI 3.14159265
-#define RECTS 100000000 //1e8
+#define RECTS 1000000000 //1e9
 #define THREADS 512
-#define BLOCKS	min(32, ((RECTS / THREADS) + 1))
+#define BLOCKS	min(8, ((RECTS / THREADS) + 1))
+
+__device__ double square (double val) {
+    return (val * val);
+}
 
 __global__ void integration(double *x, double *dx, double *results) {
     __shared__ double cache[THREADS];
@@ -74,7 +77,7 @@ int main(int argc, char* argv[]) {
 
     cudaMalloc( (void**) &d_x, sizeof(double));
     cudaMalloc( (void**) &d_dx, sizeof(double));
-    cudaMalloc( (void**) &d_r, BLOCKS * sizeof(double) );
+    cudaMalloc( (void**) &d_r, BLOCKS * sizeof(double));
 
     cudaMemcpy(d_x, &x, sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(d_dx, &dx, sizeof(double), cudaMemcpyHostToDevice);

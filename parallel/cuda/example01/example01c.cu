@@ -25,7 +25,7 @@ using namespace std::chrono;
 
 #define SIZE 	100000000 // 1e8
 #define THREADS 512
-#define BLOCKS 	min(32, ((SIZE / THREADS) + 1))
+#define BLOCKS 	min(4, ((SIZE / THREADS) + 1))
 
 __global__ void add_vector(int *result, int *a, int *b) {
 	int index = threadIdx.x + (blockIdx.x * blockDim.x);

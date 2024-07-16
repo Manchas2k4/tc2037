@@ -16,7 +16,7 @@
 using namespace std;
 
 __global__ void kernel(void) {
-	printf("GPU: Hello world\n");
+	printf("GPU B%i T%i: Hello world\n", blockIdx.x, threadIdx.x);
 }
 
 int main(int argc, char* argv[]) {

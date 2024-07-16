@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <random>
 #include <ctime>
+#include <pthread.h>
 #include "utils.h"
 
 using namespace std;
@@ -70,7 +71,8 @@ int main(int argc, char* argv[]) {
 	for (int i = 0; i < MAXTHREADS; i++) {
 		blocks[i].count = 0;
 		blocks[i].start = (i * blockSize);
-		blocks[i].end = (i != (MAXTHREADS - 1))? ((i + 1) * blockSize) : NUMBER_OF_POINTS;
+		blocks[i].end = (i != (MAXTHREADS - 1))? ((i + 1) * blockSize) 
+						: NUMBER_OF_POINTS;
 	}
 
 	cout << "Starting...\n";
@@ -92,7 +94,6 @@ int main(int argc, char* argv[]) {
 		timeElapsed += 
 			duration<double, std::milli>(end - start).count();
 	}
-	cout << "count = " << count << "\n";
 	result = ((double) (4.0 * count)) / ((double) NUMBER_OF_POINTS);
 	cout << "result = " << fixed << setprecision(20)  << result << "\n";
 	cout << "avg time = " << fixed << setprecision(3) 

@@ -26,7 +26,7 @@ using namespace std::chrono;
 #define INTERVAL 		 	10000 //1e4
 #define NUMBER_OF_POINTS 	(INTERVAL * INTERVAL) 
 #define THREADS             512
-#define BLOCKS	            min(32, ((NUMBER_OF_POINTS / THREADS) + 1))
+#define BLOCKS	            min(8, ((NUMBER_OF_POINTS / THREADS) + 1))
 
 __global__ void aprox_pi(curandState *states, int *results) {
 	__shared__ int cache[THREADS];
@@ -38,8 +38,8 @@ __global__ void aprox_pi(curandState *states, int *results) {
 
     local = 0;
     while (tid < NUMBER_OF_POINTS) {
-        x = (curand_uniform(&(states[tid])) * 2) - 1;
-		y = (curand_uniform(&(states[tid])) * 2) - 1;
+        x = (curand_uniform(&(states[cacheIndex])) * 2) - 1;
+		y = (curand_uniform(&(states[cacheIndex])) * 2) - 1;
 		dist = (x * x) + (y * y);
 		if (dist <= 1) {
 			local++;

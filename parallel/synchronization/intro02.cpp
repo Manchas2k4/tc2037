@@ -1,9 +1,11 @@
 // =================================================================
 //
-// File: race-condition.cpp
+// File: intro02.cpp
 // Author: Pedro Perez
-// Description: This file implements a race condition problem.
-//              To compile: g++ race-condition.cpp -lpthread -o app
+// Description: This file implements the solution to solve a race 
+//              condition problem.
+//
+//              To compile: g++ intro02.cpp -pthread -o app
 //
 // Copyright (c) 2024 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial
@@ -13,11 +15,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include <unistd.h>
 #include <pthread.h>
-#include <cstdlib>
-#include <ctime>
-#include <sys/time.h>
 
 using namespace std;
 

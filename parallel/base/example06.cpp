@@ -25,7 +25,7 @@ using namespace std;
 using namespace std::chrono;
 
 #define PI 3.14159265
-#define RECTS 100000000 //1e8
+#define RECTS 1000000000 //1e9
 
 double square(double x) {
 	return x * x;

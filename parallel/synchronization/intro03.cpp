@@ -1,13 +1,13 @@
 // =================================================================
 //
-// File: no-race-condition-2.cpp
+// File: intro03.cpp
 // Author: Pedro Perez
 // Description: This file implements a synchronization strategy on a 
 //              shared variable using pthreads. Unlike the previous 
-//              example (no-race-condition-1.cpp), here the increment 
+//              example (intro02.cpp), here the increment 
 //              and decrement threads alternate.
 //
-//              To compile: g++ no-race-condition-2.cpp -lpthread -o app
+//              To compile: g++ intro03.cpp -lpthread -o app
 //
 // Copyright (c) 2024 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial
@@ -16,11 +16,7 @@
 // =================================================================
 #include <iostream>
 #include <iomanip>
-#include <unistd.h>
 #include <pthread.h>
-#include <cstdlib>
-#include <ctime>
-#include <sys/time.h>
 
 using namespace std;
 

@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cstring>
+#include <pthread.h>
 #include "utils.h"
 
 using namespace std;

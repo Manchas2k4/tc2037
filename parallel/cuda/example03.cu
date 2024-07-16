@@ -25,7 +25,7 @@ using namespace std::chrono;
 #define RENS 	10000
 #define COLS 	10000
 #define THREADS	512
-#define BLOCKS	min(32, (((RENS * COLS) / THREADS) + 1))
+#define BLOCKS	min(8, (((RENS * COLS) / THREADS) + 1))
 
 __global__ void matrix_vector(int *m, int *b, int *c) {
 	int index, acum;
@@ -85,8 +85,8 @@ int main(int argc, char* argv[]) {
 		timeElapsed += 
 			duration<double, std::milli>(end - start).count();
 	}
-	cudaMemcpy(c, deviceC, RENS * sizeof(int), 
-		cudaMemcpyDeviceToHost);
+	cudaMemcpy(c, deviceC, 
+		RENS * sizeof(int), cudaMemcpyDeviceToHost);
 
 	display_array("c:", c);
 	cout << "avg time = " << fixed << setprecision(3) 

@@ -25,19 +25,20 @@ void* task (void* param) {
 
     cout << "tid " << (pthread_self()  % 10000) << " has started.\n";
     for (int i = 1; i <= limit; i++) {
-        //cout << i << " ";
+        cout << i << " ";
     }
-    //cout << "\n";
+    cout << "\n";
     cout << "tid " << (pthread_self()  % 10000) << " has ended.\n";
     return 0; //pthread_exit(0);
 }
 
 int main(int argc, char* argv[]) {
     pthread_t tid[THREADS];
-    int limit = 100;
+    int limit = 20;
 
     for (int i = 0; i < THREADS; i++) {
         pthread_create(&tid[i], NULL, task, &limit);
+        limit = limit + 20;
     }
 
     for (int i = 0; i < THREADS; i++) {
