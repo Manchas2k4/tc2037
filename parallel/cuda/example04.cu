@@ -25,7 +25,7 @@ using namespace std::chrono;
 
 #define SIZE 1000000000 //1e9
 #define THREADS 512
-#define BLOCKS	min(8, ((SIZE / THREADS) + 1))
+#define BLOCKS	min(4, ((SIZE / THREADS) + 1))
 
 __device__ int minimum(int a, int b) {
     if (a < b) {

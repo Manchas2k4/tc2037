@@ -33,7 +33,7 @@ void* increment(void *param) {
     for (int i = 0; i < MAX_ITERATIONS; i++) {
         pthread_mutex_lock(&mutex_lock);
         prev = counter++;
-        cout << "incrementing " << id << ", previous = " 
+        cout << "id=" << id << ", previous = " 
              << prev << " current = " << counter << "\n";
         pthread_mutex_unlock(&mutex_lock);
     }

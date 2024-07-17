@@ -29,13 +29,11 @@ pthread_mutex_t barrier = PTHREAD_MUTEX_INITIALIZER;
 
 int count = 0;
 
-// std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-
 void* task(void *param) {
 	int id = *((int*) param);
 	int sleep = ((rand() % 3000) + 1);
 
-	cout << "Going to sleep for " << sleep << " miliseconds\n";
+	cout << "Thread " << id << " going to sleep for " << sleep << " miliseconds\n";
 	std::this_thread::sleep_for(std::chrono::milliseconds(sleep));
 
 	pthread_mutex_lock(&mutex);

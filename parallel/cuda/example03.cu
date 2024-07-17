@@ -22,10 +22,10 @@
 using namespace std;
 using namespace std::chrono;
 
-#define RENS 	10000
-#define COLS 	10000
+#define RENS 	30000
+#define COLS 	30000
 #define THREADS	512
-#define BLOCKS	min(8, (((RENS * COLS) / THREADS) + 1))
+#define BLOCKS	min(4, (((RENS * COLS) / THREADS) + 1))
 
 __global__ void matrix_vector(int *m, int *b, int *c) {
 	int index, acum;

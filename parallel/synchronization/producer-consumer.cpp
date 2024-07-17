@@ -14,9 +14,9 @@
 
 #include <iostream>
 #include <iomanip>
-#include <unistd.h>
+#include <thread>
+#include <chrono>
 #include <pthread.h>
-#include <sys/time.h>
 
 const int SIZE = 10;
 const int MAXNUM = 10000;
@@ -28,20 +28,20 @@ pthread_cond_t space_available = PTHREAD_COND_INITIALIZER;
 pthread_cond_t data_available = PTHREAD_COND_INITIALIZER;
 
 int b[SIZE];
-int size = 0;
+int count = 0;
 int front = 0, rear = 0;
 
 void add_buffer(int i) {
 	b[rear] = i;
 	rear = (rear + 1) % SIZE;
-	size++;
+	count++;
 }
 
 int get_buffer(){
 	int v;
 	v = b[front];
-	front= (front + 1) % SIZE;
-	size--;
+	front = (front + 1) % SIZE;
+	count--;
 	return v ;
 }
 
@@ -52,7 +52,7 @@ void* producer(void *arg) {
 	i = 0;
 	while (1) {
 		pthread_mutex_lock(&mutex);
-		if (size == SIZE) {
+		if (count == SIZE) {
 			pthread_cond_wait(&space_available, &mutex);
 		}
 		printf("producer adding %i...\n", i);
@@ -60,7 +60,7 @@ void* producer(void *arg) {
 		pthread_cond_signal(&data_available);
 		pthread_mutex_unlock(&mutex);
 		i = (i + 1) % MAXNUM;
-		sleep(1);
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 	pthread_exit(NULL);
 }
@@ -70,7 +70,7 @@ void* consumer(void *arg) {
 	printf("consumer starting...\n");
 	for (int i = 0; i < 10; i++) {
 		pthread_mutex_lock(&mutex);
-		if (size == 0) {
+		if (count == 0) {
 			pthread_cond_wait(&data_available, &mutex);
 		}
 		v = get_buffer();
@@ -89,7 +89,7 @@ int main(int argc, char* argv[])   {
 	for (int i = 0; i < MAXPROD; i++) {
 		pthread_create(&producer_thread[i], NULL, producer, NULL);
 	}
-	sleep(10);
+	std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 	for (int i = 0; i < MAXCON; i++) {
 		pthread_create(&consumer_thread[i], NULL, consumer, NULL);
 	}

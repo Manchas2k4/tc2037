@@ -29,7 +29,7 @@ void* increment(void *param) {
     id = *((int*) param);
     for (int i = 0; i < MAX_ITERATIONS; i++) {
         prev = counter++;
-        cout << "incrementing " << id << ", previous = " 
+        cout << "id=" << id << ", previous = " 
              << prev << " current = " << counter << "\n";
     }
     pthread_exit(NULL);

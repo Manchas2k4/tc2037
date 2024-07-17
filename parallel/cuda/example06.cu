@@ -26,7 +26,7 @@ using namespace std::chrono;
 #define PI 3.14159265
 #define RECTS 1000000000 //1e9
 #define THREADS 512
-#define BLOCKS	min(8, ((RECTS / THREADS) + 1))
+#define BLOCKS	min(4, ((RECTS / THREADS) + 1))
 
 __device__ double square (double val) {
     return (val * val);
