@@ -14,16 +14,14 @@
 
 #include <iostream>
 #include <iomanip>
-#include <unistd.h>
+#include <thread>
 #include <pthread.h>
 #include <cstdlib>
 #include <ctime>
-#include <sys/time.h>
 
 using namespace std;
 
-const int MAX_TIMES = 3;
-const int MAX_SLEEP_TIME = 5;
+const int MAX_TIMES = 20;
 const int TOBACCO = 0;
 const int PAPER = 1;
 const int MATCH = 2;
@@ -58,11 +56,11 @@ void* smoker(void *param) {
 
   cout << "The smoker with " << translate(resource)
        << " has started... waiting for other ingredients\n";
-  for (int i = 0; i < MAX_TIMES; i++) {
+  while (1) {
     acquire(resource);
     cout << "The smoker with " << translate(resource)
          << " take what the agent left, makes a cigar and smokes it..\n";
-		sleep(1);
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		pthread_mutex_unlock(&tableLock);
   }
   pthread_exit(0);
@@ -71,7 +69,7 @@ void* smoker(void *param) {
 void* agent(void *param) {
   int value;
 
-  while (1) {
+  for (int i = 0; i < MAX_TIMES; i++) {
     pthread_mutex_lock(&tableLock);
     value = (rand() % 3);
     switch (value) {
@@ -114,7 +112,7 @@ int main(int argc, char* argv[]) {
   pthread_create(&agents, NULL, agent, NULL);
 
   for (int i = 0; i < 3; i++) {
-    pthread_join(smokers[i], NULL);
+    pthread_join(agents, NULL);
   }
 
   return 0;

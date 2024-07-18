@@ -14,17 +14,16 @@
 
 #include <iostream>
 #include <iomanip>
-#include <unistd.h>
+#include <thread>
 #include <pthread.h>
 #include <cstdlib>
 #include <ctime>
-#include <sys/time.h>
 
 using namespace std;
 
 const int MAX_PHILOSOPHERS = 5;
 const int MAX_ITERATIONS = 5;
-const int MAX_SLEEP_TIME = 5;
+const int MAX_SLEEP_TIME = 5000;
 enum {THINKING, HUNGRY, EATING} state[MAX_PHILOSOPHERS];
 
 pthread_t tids[MAX_PHILOSOPHERS];
@@ -69,11 +68,11 @@ void returnChopsticks(int i) {
 }
 
 void thinking(int sleepTime) {
-    sleep(sleepTime);
+    std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
 }
 
 void eating(int sleepTime) {
-    sleep(sleepTime);
+    std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
 }
 
 void* philosopher(void *param) {
@@ -82,6 +81,7 @@ void* philosopher(void *param) {
     int i;
 
     srand(time(0) + id);
+    cout << "Philosopher " << id << " is starting...\n";
     while(i < MAX_ITERATIONS) {
         sleepTime = (rand() % MAX_SLEEP_TIME) + 1;
         thinking(sleepTime);
