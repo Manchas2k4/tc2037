@@ -1,5 +1,5 @@
 # Compiled source #
-###################
+################### 
 *.com
 *.class
 *.dll
@@ -8,7 +8,6 @@
 *.so
 *.out
 app
-run
 
 # Packages #
 ############
@@ -33,11 +32,10 @@ run
 ######################
 .DS_Store
 .DS_Store?
-.vscode
-.vscode?
 ._*
 .Spotlight-V100
 .Trashes
+.__pycache__
 ehthumbs.db
 Thumbs.db
 
@@ -47,4 +45,4 @@ CMakeFiles/
 cmake_install.cmake
 CMakeCache.txt
 Makefile
-*.bak
+runTests
