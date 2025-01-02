@@ -1,0 +1,14 @@
+(validate
+   '((A B C D E F G)
+  ({ })
+  ((A w B) 
+   (B w C) (B 7 D)
+   (C w E) (C 7 D)
+   (D w F) (D 7 D)
+   (E w E) (E 7 G)
+   (F w F) (F 7 G)
+   (G w F) (G 7 D))
+   A
+   (G))
+'((7 w 7 w 7 w) (w w 7 7 7 7 w 7) (w w 7) (w 7 w w w))) =>
+'(#f #t #f #f)
