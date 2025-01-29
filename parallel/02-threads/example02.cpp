@@ -43,6 +43,7 @@ int main(int argc, char* argv[]) {
 
     int end, blockSize;
     thread threads[THREADS];
+    blockSize = SIZE / THREADS;
 
     array = new int[SIZE];
     for (int i = 0; i < SIZE; i++) {
@@ -51,8 +52,6 @@ int main(int argc, char* argv[]) {
     display_array("before", array);
     
     aux = new int[SIZE];
-
-    blockSize = SIZE / THREADS;
 
     cout << "Starting...\n";
     timeElapsed = 0;

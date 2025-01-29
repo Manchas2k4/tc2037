@@ -28,7 +28,7 @@ using namespace std::chrono;
 #define RECTS 	1000000000 //1e9
 #define THREADS std::thread::hardware_concurrency()
 
-double function(double x) {
+double func(double x) {
     return sin(x);
 }
 
@@ -52,11 +52,10 @@ int main(int argc, char* argv[]) {
     int end, blockSize;
     thread threads[THREADS];
     double results[THREADS];
+    blockSize = RECTS / THREADS;
 
     x = 0;
     dx = PI / RECTS;
-
-    blockSize = RECTS / THREADS;
     
     cout << "Starting...\n";
     timeElapsed = 0;
@@ -66,7 +65,7 @@ int main(int argc, char* argv[]) {
         for (int i = 0; i < THREADS; i++) {
             end = (i != (THREADS - 1))? ((i + 1) * blockSize) : RECTS;
             threads[i] = thread(integration, (i * blockSize), end, x, dx,
-                    function, std::ref(results[i]));
+                    func, std::ref(results[i]));
         }
 
         acum = 0;

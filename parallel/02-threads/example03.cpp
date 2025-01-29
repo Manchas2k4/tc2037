@@ -44,6 +44,7 @@ int main(int argc, char* argv[]) {
 
     int end, blockSize;
     thread threads[THREADS];
+    blockSize = RENS / THREADS;
 
     m = new int[RENS * COLS];
     b = new int [RENS];

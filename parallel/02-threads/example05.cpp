@@ -56,7 +56,6 @@ int main(int argc, char* argv[]) {
     int end, blockSize;
     thread threads[THREADS];
     int results[THREADS];
-
     blockSize = NUMBER_OF_POINTS / THREADS;
     
     cout << "Starting...\n";

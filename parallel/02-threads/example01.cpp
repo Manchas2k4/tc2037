@@ -39,6 +39,7 @@ int main(int argc, char* argv[]) {
 
     int end, blockSize;
     thread threads[THREADS];
+    blockSize = SIZE / THREADS;
 
     a = new int [SIZE];
     b = new int [SIZE];

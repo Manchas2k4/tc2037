@@ -45,13 +45,12 @@ int main(int argc, char* argv[]) {
     int end, blockSize;
     thread threads[THREADS];
     int results[THREADS];
+    blockSize = SIZE / THREADS;
 
     array = new int [SIZE];
     
     random_array(array, SIZE);
     display_array("array:", array);
-
-    blockSize = SIZE / THREADS;
     
     cout << "Starting...\n";
     timeElapsed = 0;
