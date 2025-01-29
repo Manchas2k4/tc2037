@@ -5,7 +5,7 @@
 // Description: This file contains the code to perform the numerical
 //		integration of a function within a defined interval 
 //		using C/C++ threads. To compile:
-//		g++ -o app -pthread example06.cpp
+//		g++ -o app example06.cpp
 //
 // Copyright (c) 2024 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial
@@ -28,66 +28,56 @@ using namespace std::chrono;
 #define RECTS 	1000000000 //1e9
 #define THREADS std::thread::hardware_concurrency()
 
-double square(double x) {
-    return x * x;
+double function(double x) {
+    return sin(x);
 }
 
-typedef struct {
-    double x, dx, result;
-    double (*fn) (double);
-    int start, end;
-} Block;
+void integration(int start, int end, double x, double dx, 
+        double (*fn) (double), double &result) {
 
-void integration(Block &b) {
     double acum = 0;
-    for (int i = b.start; i < b.end; i++) {
-        acum += b.fn(b.x + (i * b.dx));
+    for (int i = start; i < end; i++) {
+        acum += fn(x + (i * dx));
     }
-    b.result = acum;
+    result = acum;
 }
 
 int main(int argc, char* argv[]) {
     double result, x, dx, acum;
 
     // These variables are used to keep track of the execution time.
-    high_resolution_clock::time_point start, end;
+    high_resolution_clock::time_point startTime, endTime;
     double timeElapsed;
 
-    int blockSize;
-    Block blocks[THREADS];
+    int end, blockSize;
     thread threads[THREADS];
+    double results[THREADS];
 
     x = 0;
     dx = PI / RECTS;
 
     blockSize = RECTS / THREADS;
-    for (int i = 0; i < THREADS; i++) {
-        blocks[i].x = x;
-        blocks[i].dx = dx;
-        blocks[i].fn = sin;
-        blocks[i].result = 0;
-        blocks[i].start = (i * blockSize);
-        blocks[i].end = (i != (THREADS - 1))? ((i + 1) * blockSize) : RECTS;
-    }	
-
+    
     cout << "Starting...\n";
     timeElapsed = 0;
     for (int j = 0; j < N; j++) {
-        start = high_resolution_clock::now();
+        startTime = high_resolution_clock::now();
 
         for (int i = 0; i < THREADS; i++) {
-            threads[i] = thread(integration, std::ref(blocks[i]));
+            end = (i != (THREADS - 1))? ((i + 1) * blockSize) : RECTS;
+            threads[i] = thread(integration, (i * blockSize), end, x, dx,
+                    function, std::ref(results[i]));
         }
 
         acum = 0;
         for (int i = 0; i < THREADS; i++) {
             threads[i].join();
-            acum += blocks[i].result;
+            acum += results[i];
         }
 
-        end = high_resolution_clock::now();
+        endTime = high_resolution_clock::now();
         timeElapsed += 
-            duration<double, std::milli>(end - start).count();
+            duration<double, std::milli>(endTime - startTime).count();
     }
     result = acum * dx;
     cout << "result = " << fixed << setprecision(20)  << result << "\n";

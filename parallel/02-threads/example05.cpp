@@ -4,7 +4,7 @@
 // Author: Pedro Perez
 // Description: This file contains the approximation of Pi using the 
 //		Monte-Carlo method using C/C++ threads. To compile:
-//		g++ -o app -pthread example05.cpp
+//		g++ -o app example05.cpp
 //
 // Reference:
 //	https://www.geogebra.org/m/cF7RwK3H
@@ -29,16 +29,12 @@ using namespace std::chrono;
 #define NUMBER_OF_POINTS 	(INTERVAL * INTERVAL) // 1e8
 #define THREADS             std::thread::hardware_concurrency()
 
-typedef struct {
-    int start, end, count;
-} Block;
-
-void aprox_pi(Block &b) {
+void aprox_pi(int start, int end, int &result) {
     default_random_engine generator;
     uniform_real_distribution<double> distribution(0.0, 1.0);
 
     int local = 0;
-    for (int i = b.start; i < b.end; i++) {
+    for (int i = start; i < end; i++) {
         double x = (distribution(generator) * 2) - 1;
         double y = (distribution(generator) * 2) - 1;
         double dist = (x * x) + (y * y);
@@ -46,7 +42,7 @@ void aprox_pi(Block &b) {
             local++;
         }
     }
-    b.count = local;
+    result = local;
 }
 
 int main(int argc, char* argv[]) {
@@ -54,39 +50,34 @@ int main(int argc, char* argv[]) {
     int count;
     
     // These variables are used to keep track of the execution time.
-    high_resolution_clock::time_point start, end;
+    high_resolution_clock::time_point startTime, endTime;
     double timeElapsed;
 
-    int blockSize;
-    Block blocks[THREADS];
+    int end, blockSize;
     thread threads[THREADS];
+    int results[THREADS];
 
     blockSize = NUMBER_OF_POINTS / THREADS;
-    for (int i = 0; i < THREADS; i++) {
-        blocks[i].count = 0;
-        blocks[i].start = (i * blockSize);
-        blocks[i].end = (i != (THREADS - 1))? ((i + 1) * blockSize) 
-                        : NUMBER_OF_POINTS;
-    }
-
+    
     cout << "Starting...\n";
     timeElapsed = 0;
     for (int j = 0; j < N; j++) {
-        start = high_resolution_clock::now();
+        startTime = high_resolution_clock::now();
 
         for (int i = 0; i < THREADS; i++) {
-            threads[i] = thread(aprox_pi, std::ref(blocks[i]));
+            end = (i != (THREADS - 1))? ((i + 1) * blockSize)  : NUMBER_OF_POINTS;
+            threads[i] = thread(aprox_pi, (i * blockSize), end, ::ref(results[i]));
         }
 
         count = 0;
         for (int i = 0; i < THREADS; i++) {
             threads[i].join();
-            count += blocks[i].count;
+            count += results[i];
         }
 
-        end = high_resolution_clock::now();
+        endTime = high_resolution_clock::now();
         timeElapsed += 
-            duration<double, std::milli>(end - start).count();
+            duration<double, std::milli>(endTime - startTime).count();
     }
     result = ((double) (4.0 * count)) / ((double) NUMBER_OF_POINTS);
     cout << "result = " << fixed << setprecision(20)  << result << "\n";
