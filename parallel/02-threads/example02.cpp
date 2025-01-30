@@ -41,9 +41,11 @@ int main(int argc, char* argv[]) {
     high_resolution_clock::time_point startTime, endTime;
     double timeElapsed;
 
-    int end, blockSize;
+    int start, end, remainder, block_size;
     thread threads[THREADS];
-    blockSize = SIZE / THREADS;
+    
+    block_size = SIZE / THREADS;
+    remainder = SIZE % THREADS;
 
     array = new int[SIZE];
     for (int i = 0; i < SIZE; i++) {
@@ -60,9 +62,11 @@ int main(int argc, char* argv[]) {
         
         startTime = high_resolution_clock::now();
 
+        start = 0;
         for (int i = 0; i < THREADS; i++) {
-            end = (i != (THREADS - 1))? ((i + 1) * blockSize) : SIZE;
-            threads[i] = thread(replace, (i * blockSize), end, aux, 1, -1);
+            end = start + block_size + ((i < remainder)? 1 : 0);
+            threads[i] = thread(replace, start, end, aux, 1, -1);
+            start = end;
         }
 
         for (int i = 0; i < THREADS; i++) {

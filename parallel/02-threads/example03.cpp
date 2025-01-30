@@ -42,9 +42,11 @@ int main(int argc, char* argv[]) {
     high_resolution_clock::time_point startTime, endTime;
     double timeElapsed;
 
-    int end, blockSize;
+    int start, end, remainder, block_size;
     thread threads[THREADS];
-    blockSize = RENS / THREADS;
+    
+    block_size = RENS / THREADS;
+    remainder = RENS % THREADS;
 
     m = new int[RENS * COLS];
     b = new int [RENS];
@@ -56,17 +58,17 @@ int main(int argc, char* argv[]) {
         }
         b[i] = 1;
     }
-
-    blockSize = RENS / THREADS;
     
     cout << "Starting...\n";
     timeElapsed = 0;
     for (int j = 0; j < N; j++) {
         startTime = high_resolution_clock::now();
 
+        start = 0;
         for (int i = 0; i < THREADS; i++) {
-            end = (i != (THREADS - 1))? ((i + 1) * blockSize) : RENS;
-            threads[i] = thread(matrix_vector, (i * blockSize), end, m, b, c);
+            end = start + block_size + ((i < remainder)? 1 : 0);
+            threads[i] = thread(matrix_vector, start, end, m, b, c);
+            start = end;
         }
 
         for (int i = 0; i < THREADS; i++) {

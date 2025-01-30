@@ -53,19 +53,23 @@ int main(int argc, char* argv[]) {
     high_resolution_clock::time_point startTime, endTime;
     double timeElapsed;
 
-    int end, blockSize;
+    int start, end, remainder, block_size;
     thread threads[THREADS];
     int results[THREADS];
-    blockSize = NUMBER_OF_POINTS / THREADS;
+    
+    block_size = NUMBER_OF_POINTS / THREADS;
+    remainder = NUMBER_OF_POINTS % THREADS;
     
     cout << "Starting...\n";
     timeElapsed = 0;
     for (int j = 0; j < N; j++) {
         startTime = high_resolution_clock::now();
 
+        start = 0;
         for (int i = 0; i < THREADS; i++) {
-            end = (i != (THREADS - 1))? ((i + 1) * blockSize)  : NUMBER_OF_POINTS;
-            threads[i] = thread(aprox_pi, (i * blockSize), end, ::ref(results[i]));
+            end = start + block_size + ((i < remainder)? 1 : 0);
+            threads[i] = thread(aprox_pi, start, end, ::ref(results[i]));
+            start = end;
         }
 
         count = 0;

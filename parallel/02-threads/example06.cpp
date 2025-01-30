@@ -49,10 +49,12 @@ int main(int argc, char* argv[]) {
     high_resolution_clock::time_point startTime, endTime;
     double timeElapsed;
 
-    int end, blockSize;
+    int start, end, remainder, block_size;
     thread threads[THREADS];
     double results[THREADS];
-    blockSize = RECTS / THREADS;
+    
+    block_size = RECTS / THREADS;
+    remainder = RECTS % THREADS;
 
     x = 0;
     dx = PI / RECTS;
@@ -62,10 +64,12 @@ int main(int argc, char* argv[]) {
     for (int j = 0; j < N; j++) {
         startTime = high_resolution_clock::now();
 
+        start = 0;
         for (int i = 0; i < THREADS; i++) {
-            end = (i != (THREADS - 1))? ((i + 1) * blockSize) : RECTS;
-            threads[i] = thread(integration, (i * blockSize), end, x, dx,
+            end = start + block_size + ((i < remainder)? 1 : 0);
+            threads[i] = thread(integration, start, end, x, dx,
                     func, std::ref(results[i]));
+            start = end;
         }
 
         acum = 0;
