@@ -5,7 +5,7 @@
 // Description: This file contains the code to perform the numerical
 //				integration of a function within a defined interval
 //				using CUDA. To compile
-//		        nvcc -o app example06.cu
+//		        !nvcc -arch=sm_75 -o app example06.cu
 //
 // Copyright (c) 2024 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial

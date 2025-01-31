@@ -5,7 +5,7 @@
 // Description: This file contains the code that looks for an element 
 //				X within the array and replaces it with Y using CUDA. 
 //              To compile:
-//		        nvcc -o app example02.cu
+//		        !nvcc -arch=sm_75 -o app example02.cu
 //
 // Copyright (c) 2022 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial
