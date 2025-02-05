@@ -4,7 +4,7 @@
 // Author: Pedro Perez
 // Description: This file implements the addition of two vectors
 //              using CUDA technology. 
-//              To compile: !nvcc -arch=sm_75 -o app example02.cu
+//              To compile: !nvcc -arch=sm_75 -o app example01b.cu
 //
 // Copyright (c) 2024 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial
