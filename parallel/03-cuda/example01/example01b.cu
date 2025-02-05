@@ -2,10 +2,8 @@
 //
 // File: example01b.cpp
 // Author: Pedro Perez
-// Description: This file implements the addition of two vectors. 
-//				The time this implementation takes will be used as 
-//				the basis to calculate the improvement obtained with 
-//				parallel technologies.
+// Description: This file implements the addition of two vectors
+//              using CUDA technology. 
 //              To compile: !nvcc -arch=sm_75 -o app example02.cu
 //
 // Copyright (c) 2024 by Tecnologico de Monterrey.
