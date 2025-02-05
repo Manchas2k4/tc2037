@@ -6,6 +6,7 @@
 //				The time this implementation takes will be used as 
 //				the basis to calculate the improvement obtained with 
 //				parallel technologies.
+//              To compile: !nvcc -arch=sm_75 -o app example02.cu
 //
 // Copyright (c) 2024 by Tecnologico de Monterrey.
 // All Rights Reserved. May be reproduced for any non-commercial
