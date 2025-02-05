@@ -1,6 +1,6 @@
 // =================================================================
 //
-// File: example01b.cpp
+// File: example01b.cu
 // Author: Pedro Perez
 // Description: This file implements the addition of two vectors
 //              using CUDA technology. 
