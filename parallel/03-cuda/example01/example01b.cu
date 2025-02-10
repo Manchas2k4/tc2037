@@ -1,6 +1,6 @@
 // =================================================================
 //
-// File: example01b.cpp
+// File: example01c.cpp
 // Author: Pedro Perez
 // Description: This file implements the addition of two vectors. 
 //				The time this implementation takes will be used as 
@@ -16,16 +16,23 @@
 #include <iostream>
 #include <iomanip>
 #include <chrono>
+#include <algorithm>
 #include <cuda_runtime.h>
 #include "utils.h"
 
 using namespace std;
 using namespace std::chrono;
 
-#define SIZE 1000000000 // 1e9
+#define SIZE 	1000000000 // 1e9
+#define THREADS 512
+#define BLOCKS	min(4, ((SIZE / THREADS) + 1))
 
 __global__ void add_vector(int *result, int *a, int *b) {
-    result[threadIdx.x] = a[threadIdx.x] + b[threadIdx.x];
+    int index = threadIdx.x + (blockIdx.x * blockDim.x);
+    while (index < SIZE) {
+        result[index] = a[index] + b[index];
+        index += (blockDim.x * gridDim.x);
+    }
 }
 
 int main(int argc, char* argv[]) {
@@ -57,7 +64,7 @@ int main(int argc, char* argv[]) {
     for (int j = 0; j < N; j++) {
         start = high_resolution_clock::now();
 
-        add_vector<<<1, SIZE>>>(deviceC, deviceA, deviceB);
+        add_vector<<<BLOCKS, THREADS>>>(deviceC, deviceA, deviceB);
 
         end = high_resolution_clock::now();
         timeElapsed += 
