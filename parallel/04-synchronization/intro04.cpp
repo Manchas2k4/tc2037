@@ -2,10 +2,10 @@
 //
 // File: intro04.cpp
 // Author: Pedro Perez
-// Description: This file implements a strategy that allows tasks to 
-//				be alternated between two types of threads: type 1 
-//				tasks are done first, while type 2 tasks wait and then 
-//				they alternate.
+// Description: This file implements a synchronization strategy on a 
+//              shared variable using pthreads. Unlike the previous 
+//              example (intro03.cpp), here the increment 
+//              and decrement threads alternate.
 //
 //              To compile: g++ intro04.cpp -pthread -o app
 //
@@ -14,58 +14,60 @@
 // purpose.
 //
 // =================================================================
-
 #include <iostream>
 #include <iomanip>
-#include <pthread.h>
 #include <thread>
+#include <mutex>
 
 using namespace std;
 
-#define TIMES	10
+int counter = 0;
 
-pthread_mutex_t type1_turn = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t type2_turn = PTHREAD_MUTEX_INITIALIZER;
+const int MAX_THREADS = 4;
+const int MAX_ITERATIONS = 5;
 
-void* type1(void *arg) {
-	cout << "Type 1 starting...\n";
-	int i = TIMES;
-	while (i > 0) {
-		pthread_mutex_lock(&type1_turn);
-		cout << "Type 1 - " << i << "\n";
-		pthread_mutex_unlock(&type2_turn);
-		i--;
-	}
-	cout << "Type 1 ending\n";
-	pthread_exit(NULL);
+mutex add_lock, sub_lock;
+
+void increment(int id) {
+    int prev;
+
+    for (int i = 0; i < MAX_ITERATIONS; i++) {
+        add_lock.lock();
+        prev = counter++;
+        cout << "incrementing id = " << id << ", previous = " 
+             << prev << " current = " << counter << "\n";
+        sub_lock.unlock();
+    }
 }
 
-void* type2(void *arg) {
-	cout << "Type 2 starting...\n";
-	int i = 1;
-	while (i <= TIMES) {
-		pthread_mutex_lock(&type2_turn);
-		cout << "Type 2 - " << i << "\n";
-		pthread_mutex_unlock(&type1_turn);
-		i++;
-	}
-	cout << "Type 2 ending\n";
-	pthread_exit(NULL);
+void decrement(int id) {
+    int prev;
+
+    for (int i = 0; i < MAX_ITERATIONS; i++) {
+        sub_lock.lock();
+        prev = counter--;
+        cout << "decrementing id = " << id << ", previous = " 
+             << prev << " current = " << counter << "\n";
+        add_lock.unlock();
+    }
 }
 
+int main(int argc, char* argv[]) {
+    thread tids[MAX_THREADS];
 
-int main(int argc, char* argv[])   {
-	pthread_t type1_thread;
-	pthread_t type2_thread;
+    add_lock.lock();
 
-	pthread_mutex_lock(&type1_turn);
+    for (int i = 0; i < MAX_THREADS; i++) {
+        if (i % 2 == 0) {
+            tids[i] = thread(increment, i);
+        } else {
+            tids[i] = thread(decrement, i);
+        }
+    }
 
-	pthread_create(&type1_thread, NULL, type1, NULL);
-	std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+    for (int i = 0; i < MAX_THREADS; i++) {
+        tids[i].join();
+    }
 
-	pthread_create(&type2_thread, NULL, type2, NULL);
-	
-	pthread_join(type1_thread, NULL);
-	pthread_join(type2_thread, NULL);
-	return 0;
+    return 0;
 }
