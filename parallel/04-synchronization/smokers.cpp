@@ -15,9 +15,11 @@
 #include <iostream>
 #include <iomanip>
 #include <thread>
-#include <pthread.h>
 #include <cstdlib>
 #include <ctime>
+#include <chrono>
+#include <mutex>
+#include <condition_variable>
 
 using namespace std;
 
@@ -25,95 +27,97 @@ const int MAX_TIMES = 20;
 const int TOBACCO = 0;
 const int PAPER = 1;
 const int MATCH = 2;
-pthread_mutex_t tableLock, tobaccoLock, paperLock, matchLock;
+
+mutex tableLock, tobaccoLock, paperLock, matchLock;
+condition_variable tobaccoCV, paperCV, matchCV;
 
 void acquire(int resource) {
-  switch (resource) {
-    case TOBACCO : pthread_mutex_lock(&tobaccoLock); break;
-    case PAPER   : pthread_mutex_lock(&paperLock); break;
-    default      : pthread_mutex_lock(&matchLock); break;
-  }
+    switch (resource) {
+        case TOBACCO : tobaccoLock.lock(); break;
+        case PAPER   : paperLock.lock(); break;
+        default      : matchLock.lock(); break;
+    }
 }
 
 void release(int resource) {
-  switch (resource) {
-    case TOBACCO : pthread_mutex_unlock(&tobaccoLock); break;
-    case PAPER   : pthread_mutex_unlock(&paperLock); break;
-    default      : pthread_mutex_unlock(&matchLock); break;
-  }
+    switch (resource) {
+        case TOBACCO : 
+            tobaccoLock.unlock();
+            tobaccoCV.notify_one();
+            break;
+        case PAPER   : 
+            paperLock.unlock();
+            paperCV.notify_one();
+            break;
+        default      : 
+            matchLock.unlock();
+            matchCV.notify_one();
+            break;
+    }
 }
 
 string translate(int resource) {
-  switch (resource) {
-    case TOBACCO : return "tobacco";
-    case PAPER   : return "paper";
-    default      : return "match";
-  }
+    switch (resource) {
+        case TOBACCO : return "tobacco";
+        case PAPER   : return "paper";
+        default      : return "match";
+    }
 }
 
-void* smoker(void *param) {
-  int resource = *(int*) param;
-
-  cout << "The smoker with " << translate(resource)
-       << " has started... waiting for other ingredients\n";
-  while (1) {
-    acquire(resource);
+void smoker(int resource) {
     cout << "The smoker with " << translate(resource)
-         << " take what the agent left, makes a cigar and smokes it..\n";
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		pthread_mutex_unlock(&tableLock);
-  }
-  pthread_exit(0);
+         << " has started... waiting for other ingredients\n";
+    while (true) {
+        acquire(resource);
+        cout << "The smoker with " << translate(resource)
+             << " takes what the agent left, makes a cigar and smokes it..\n";
+        this_thread::sleep_for(std::chrono::milliseconds(1000));
+        tableLock.unlock();
+    }
 }
 
-void* agent(void *param) {
-  int value;
-
-  for (int i = 0; i < MAX_TIMES; i++) {
-    pthread_mutex_lock(&tableLock);
-    value = (rand() % 3);
+void agent() {
+    for (int i = 0; i < MAX_TIMES; i++) {
+    std:unique_lock<std::mutex> lock(tableLock);
+    int value = (rand() % 3);
     switch (value) {
-		 case TOBACCO:
-				cout << "Agent is placing paper and match.\n";
-				release(TOBACCO);
-				break;
-			case PAPER:
-				cout << "Agent is placing a tobacco and match.\n";
-				release(PAPER);
-				break;
-			default:
-				cout << "Agent is placing a tobacco and paper.\n";
-				release(MATCH);
-				break;
-		}
+      case TOBACCO:
+        cout << "Agent is placing paper and match.\n";
+        release(TOBACCO);
+        break;
+      case PAPER:
+        cout << "Agent is placing a tobacco and match.\n";
+        release(PAPER);
+        break;
+      default:
+        cout << "Agent is placing a tobacco and paper.\n";
+        release(MATCH);
+        break;
+    }
   }
-  pthread_exit(0);
 }
 
-int main(int argc, char* argv[]) {
-  pthread_t smokers[3], agents;
-  int resources[] = {TOBACCO, PAPER, MATCH};
+int main() {
+    thread smokers[3], agentThread;
+    int resources[] = {TOBACCO, PAPER, MATCH};
 
-  pthread_mutex_init(&tableLock, NULL);
-  pthread_mutex_init(&tobaccoLock, NULL);
-  pthread_mutex_init(&paperLock, NULL);
-  pthread_mutex_init(&matchLock, NULL);
+    tableLock.lock();
+    tobaccoLock.lock();
+    paperLock.lock();
+    matchLock.lock();
 
-  pthread_mutex_lock(&tobaccoLock);
-  pthread_mutex_lock(&paperLock);
-  pthread_mutex_lock(&matchLock);
+    srand(time(0));
 
-  srand(time(0));
+    for (int i = 0; i < 3; i++) {
+        smokers[i] = std::thread(smoker, resources[i]);
+    }
 
-  for (int i = 0; i < 3; i++) {
-    pthread_create(&smokers[i], NULL, smoker, &resources[i]);
-  }
+    agentThread = std::thread(agent);
 
-  pthread_create(&agents, NULL, agent, NULL);
+    for (auto& smoker : smokers) {
+        smoker.join();
+    }
+    agentThread.join();
 
-  for (int i = 0; i < 3; i++) {
-    pthread_join(agents, NULL);
-  }
-
-  return 0;
+    return 0;
 }
