@@ -28,6 +28,8 @@
       ((< n 10) 1)
       (else (+ 1 (count-digits (quotient n 10)))))))
 
+;; -------------------------------------------------------- ;;
+
 (define lst '(2 1 3 6 5 4))
 
 (define length
@@ -57,6 +59,8 @@
        (let ((result (greater (cdr lst))) (b 5) (c 3))
          (if (> (car lst) result) (car lst) result))))))
 
+;; -------------------------------------------------------- ;;
+
 (define zeros
   (lambda (n)
     (cond
@@ -85,7 +89,28 @@
          (cons (+ (car previous-list) (cadr previous-list))
                previous-list))))))
 
+;; -------------------------------------------------------- ;;
 
+(define add-two
+  (lambda (lst)
+    (cond
+      ((null? lst) '())
+      (else (cons (+ 2 (car lst))
+                  (add-two (cdr lst)))))))
+
+(define my-append
+  (lambda (lst1 lst2)
+    (cond
+      ((null? lst1) lst2)
+      (else (cons (car lst1) (my-append (cdr lst1) lst2))))))
+
+
+(define my-reverse
+  (lambda (lst)
+    (cond
+      ((null? lst) '())
+      (else (append (my-reverse (cdr lst)) (list (car lst)))))))
+      
 
 
 

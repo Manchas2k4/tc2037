@@ -12,6 +12,8 @@
   (lambda (radius)
     (* 3.14 radius radius)))
 
+;; -------------------------------------------------------- ;;
+
 (define area-of-ring
   (lambda (inner outer)
     (- (area-circle outer) (area-circle inner))))
@@ -20,6 +22,8 @@
   (lambda (radius height)
     (* (area-circle radius) height)))
 
+;; -------------------------------------------------------- ;;
+
 (define max2
   (lambda (a b)
     (if (> a b) a b)))
@@ -27,6 +31,8 @@
 (define max3
   (lambda (a b c)
     (max2 a (max2 b c))))
+
+;; -------------------------------------------------------- ;;
 
 (define interest
   (lambda (amount)
@@ -41,3 +47,5 @@
       ((> (* b b) (* 4 a c)) 2)
       ((= (* b b) (* 4 a c)) 1)
       (else 0))))
+
+;; -------------------------------------------------------- ;;

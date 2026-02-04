@@ -25,6 +25,8 @@
          (15 (11 () ())
              ()))))
 
+;; -------------------------------------------------------- ;;
+
 (define parent
   (lambda (abb)
     (car abb)))
@@ -62,6 +64,8 @@
        (if (null? (right tree))
            (list (parent tree) (left tree) (make-leaf key))
            (list (parent tree) (left tree) (insert key (right tree))))))))
+
+;; -------------------------------------------------------- ;;
 
 (define aplica
   (lambda (fn a b)
@@ -102,6 +106,7 @@
              (list (car lst))
              (quicksort (filter (lambda (n) (>= n (car lst))) (cdr lst))))))))
 
+;; -------------------------------------------------------- ;;
 
 (define fact1
   (lambda (n)
@@ -118,13 +123,6 @@
     (cond
       ((= n 1) acc)
       (else (fact2-aux (sub1 n) (* n acc))))))
-
-
-(define fibo1
-  (lambda (n)
-    (cond
-      ((<= n 2) 1)
-      (else (+ (fibo1 (- n 1)) (fibo1 (- n 2)))))))
 
 (define ce1
   (lambda (lst)
