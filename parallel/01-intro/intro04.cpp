@@ -20,31 +20,23 @@ using namespace std;
 
 #define THREADS 4
 
-typedef struct {
-    int id, start, end;
-} Block;
-
-void task (Block & b) {
-    cout << "id " << b.id << " has started.\n";
-    for (int i = b.start; i < b.end; i++) {
+void task (int id, int start, int end) {
+    cout << "id " << id << " has started.\n";
+    for (int i = start; i < end; i++) {
         cout << i << " ";
     }
     cout << "\n";
-    cout << "id " << b.id << " has ended.\n";
+    cout << "id " << id << " has ended.\n";
 }
 
 int main(int argc, char* argv[]) {
     thread threads[THREADS];
-    Block blocks[THREADS];
 
     for (int i = 0; i < THREADS; i++) {
-        blocks[i].id = i; 
-        blocks[i].start = i * 100; 
-        blocks[i].end = (i + 1) * 100; 
-    }
-
-    for (int i = 0; i < THREADS; i++) {
-        threads[i] = thread(task, std::ref(blocks[i]));
+        int id = i; 
+        int start = i * 100; 
+        int end = (i + 1) * 100; 
+        threads[i] = thread(task, id, start, end);
     }
 
     for (int i = 0; i < THREADS; i++) {

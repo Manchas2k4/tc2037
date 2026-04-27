@@ -41,32 +41,17 @@
   (lambda (tree)
     (caddr tree)))
 
-(define leaf?
+(define leaf
   (lambda (tree)
-    (cond
-      ((null? tree) #f)
-      (else (and (null? (left tree)) (null? (right tree)))))))
 
 (define height
   (lambda (tree)
     (cond
-      ((null? tree) -1)
-      ((leaf? tree) 0)
+      ((null? tree) 0)
       (else
        (let ((height-left (height (left tree)))
              (height-right (height (right tree))))
          (if (> height-left height-right) (add1 height-left) (add1 height-right)))))))
-
-(define balanced?
-  (lambda (tree)
-    (cond
-      ((null? tree) #t)
-      (else
-       (let ((height-left (height (left tree)))
-             (height-right (height (right tree))))
-         (and (<= (abs (- height-left height-right)) 1)
-              (balanced? (left tree))
-              (balanced? (right tree))))))))
 
 (define preorder
   (lambda (tree)
