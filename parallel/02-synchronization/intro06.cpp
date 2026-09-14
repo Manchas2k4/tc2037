@@ -27,13 +27,20 @@ const int MAX_ITERATIONS = 3;
 
 int counter = 0;
 int steps = 0;
-mutex semaphore;
+mutex semaphore, display;
 condition_variable cv;
 
 void task(int id) {
+    int sleep = ((rand() % 5) + id);
 
     for (int i = 0; i < MAX_ITERATIONS; i++) {
-        cout << "id=" << id << " step=" << i << " before the barrier.\n";
+        display.lock();
+        cout << "id=" << id << " before the barrier.\n";
+        cout << "Thread " << id << " going to sleep for " << sleep << " seconds\n\n";
+        display.unlock();
+
+	    std::this_thread::sleep_for(std::chrono::seconds(sleep));
+
 
         unique_lock<mutex> barrier(semaphore);
         int current_step = steps;
